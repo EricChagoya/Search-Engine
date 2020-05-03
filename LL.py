@@ -1,11 +1,8 @@
 
 
 
-
-
-
-
 class LL:
+    """Don't use this class. This class is used by LL_all."""
     def __init__(self, value, next= None):
         self.value= value
         self.next= next
@@ -14,18 +11,23 @@ class LL:
 
 
 class LL_all:
-    def __init__(self, values:[int]):
+    """This class will take care of the small details like knowing what the first value is, 
+    add/remove values, change the head if the head has been removed or there is a value smaller
+    then the current head."""
+    
+    def __init__(self, values= []) -> None:
         """The value is a sorted list of ids. Make sure they are
         already sorted."""
-        
         head= self.__initial_add(values)
         self.head= head         # The first node in the linked list
         self.current= head      # The current location
 
 
     @staticmethod
-    def __initial_add(values:[int]):
-        # Don't use this one
+    def __initial_add(values:[int]) -> "LL":
+        # Don't use this method
+        if len(values) == 0:
+            return None
         front= end= LL(values[0])
         for v in values[1:]:
             end.next= LL(v)
@@ -33,93 +35,57 @@ class LL_all:
         return front
 
 
-
-    def add(self, value:int):
-        # Test case at the beginning, middle, end
-        # Empty LL
-        # Multiple adds
-        if self.head == None:
-            print(value)
-            self.head= LL(value)
-            self.current= self.head
-            # I only change current bc it originally pointing to head
-            # which it needs to update to the next head
-            return
-
-        ll= self.head
-
-        if ll.value > value:
-            self.head = LL(value, self.head)
+    def add(self, value:int) -> None:
+        """Add an integer to the LL. It will make sure the value is sorted."""
+        if (self.head == None) or (self.head.value > value):    # If LL is empty or value is less than the value
+            self.head= LL(value, self.head)
             self.current= self.head
             return
-        # Maybe combine this with above with something like
-        # if (self.head == None) or (self.head.value > value):
-        if ll.value == value:
+        elif self.head.value == value:  # If value is the head of the LL
             return
         
-
         ll= self.head
         ll_next= self.head.next
-
         while ll_next != None:
             if value < ll_next.value:
                 new_LL= LL(value, ll_next)
                 ll.next= new_LL
                 return
-            
-            elif value == ll_next.value:
+            elif value == ll_next.value:    # If value is already in LL
                 return
-             
             ll= ll_next
             ll_next= ll_next.next
-
         
-        ll.next= LL(value)
+        ll.next= LL(value)  # Add to the end
         
 
+    def add_list_values(self, values: [int]) -> None:
+        for v in values:
+            self.add(v)
 
-    def add_list_values(self, values: [int]):
-        pass
 
-
-
-    def remove(self, value: int):
+    def remove(self, value: int) -> None:
         if self.head ==None:    # Cannot remove from an empty LL
             return
-
         if value == self.head.value:     # Remove the first instance
             self.head= self.head.next
             return
             
         ll= self.head
         ll_prev= None
-        
         while ll != None:
             if ll.value == value:
                 ll_prev.next= ll.next
             ll_prev= ll
             ll= ll.next
 
-        
-        
+
+    def remove_list_values(self, values:[int]) -> None:
+        for v in values:
+            self.remove(v)
 
 
-
-
-
-
-
-
-
-
-
-
-    def remove_list_values(self, values:[int]):
-        pass
-
-
-
-    def length(self):
+    def length(self) -> int:
         """Length of the entire LL, number of nodes"""
         count= 0
         ll= self.head
@@ -129,25 +95,28 @@ class LL_all:
         return count
     
     
-    def value(self):
-        if self.current == None:
+    def value(self) -> None or int:
+        """Return the value of the current node"""
+        if self.current == None or self.head == None:
             return None
         else:
             return self.current.value
 
 
-    def next(self):
+    def next(self) -> None:
         """It doesn't return anything. It just updates current"""
         if self.current != None:
             self.current= self.current.next
 
     
-    def reset(self):
+    def reset(self) -> None:
         """If you previously iterated through the LL, this will reset it."""
         self.current= self.head
     
 
-    def LL_to_list(self):
+    def LL_to_list(self) -> [int]:
+        """I mostly used this for testing purposes. I'm not sure if it should
+        be used outside of that purpose."""
         ll= self.head
         values= []
         while ll != None:
@@ -156,45 +125,26 @@ class LL_all:
         return values
     
     
-    def index(self):
-        """Value is in index"""
-        pass
+    def index(self, value: int) -> int or None:
+        """It tries to find the value in the LL. It returns what 
+        position it is in. None otherwise."""
+        count= 0
+        ll= self.head
+        while ll!= None:
+            if ll.value == value:
+                return count
+            ll= ll.next
+            count+= 1        
+        return None
 
 
 
 
 
-
-"""
-postings= LL_all([1, 3, 5])
-
-print("Length is", postings.length())
-print()
-
-print("LL to list", postings.LL_to_list())
-print()
-
-print("Current Value", postings.value())
-print()
-
-
-postings.next()
-print("Current Value", postings.value())
-print()
-
-
-
-postings.add(4)
-
-
-postings.next()
-print("Current Value", postings.value())
-print()
-
-
-postings.add(6)
-print("LL to list", postings.LL_to_list())
-"""
+# I'm not throwing exceptions if you try to remove a value that isn't there
+# or add a value that is already in the LL.
+# I'm not sure if you guys want me to add that as an extra safety net when
+# someone misuses the class.
 
 
 
