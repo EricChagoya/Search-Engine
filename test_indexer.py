@@ -11,47 +11,58 @@ import re
 
 
 
-class Tokens(unittest.TestCase):
+class Indexer_Test(unittest.TestCase):
 
     def setUp(self):
         # Setup tokens
-        #Read File and put contents into the indexer
+        # Read File and put contents into the indexer
         # See if the token is in the indexer
-        pass
+        self.indexer= None  # Empty indexer maybe?
 
 
     def test_ip_address(self):
-        print(5)
-        #self.assertEqual(sum([1, 2, 3]), 6, "Should be 6")
         ip= "192.168.0.1"
+        #self.indexer add(ip)
+        #self.assertIn(ip, self.indexer)
 
 
     def test_email_address(self):
         email= "info@uci.edu"
-        pass
+        #self.indexer add(email)
+        #self.assertIn(email, self.indexer)
 
 
 
     def test_urls(self):
-        pass
+        url= "https://www.ics.uci.edu/~pattis/ICS-33/lectures/unittest.txt"
+        #self.indexer add(url)
+        #self.assertIn(url, self.indexer)
 
 
 
     def test_stemming(self):
-        pass
+        fishes= "fishes"
+        #self.indexer add(fishes)
+        #self.assertIn("fish", self.indexer)
 
 
     def test_hyphens(self):
-        pass
+        oneway= "one-way"
+        #self.indexer add(oneway)
+        #self.assertIn(oneway, self.indexer)
 
 
     def test_end_period(self):
-        pass
+        stamp= "stamp."
+        #self.indexer add(stamp)
+        #self.assertIn("stamp", self.indexer)
 
 
 
     def test_extra_comma(self):
-        pass
+        mouse= "mouse,"
+        #self.indexer add(mouse)
+        #self.assertIn("mouse", self.indexer)
 
 
     def test_random_character(self):
@@ -61,24 +72,30 @@ class Tokens(unittest.TestCase):
 
 
     def test_apostrophes_s(self):
-        pass
+        tom= "Tom's"
+        #self.indexer add(tom)
+        #self.assertIn("tom", self.indexer)
 
 
 
     def test_apostrophe(self):
         #Apostrophe O'Connel
-        pass
+        OConnel= "O'Connel"
+        #self.indexer add(OConncel)
+        #self.assertIn("OConncel", self.indexer)
 
 
 
 
     def test_contractions(self):
-        pass
+        cant= "can't"
+        #self.indexer add(cant)
+        self.assertIn("cant", cant)
 
 
 
     def test_small_important_tokens(self):
-        #am, pm, el pase, World War II
+        #am, pm, el paso, World War II
         pass
 
 
@@ -89,7 +106,10 @@ class Tokens(unittest.TestCase):
 
     def test_abbreviation(self):
         # U.S.A     USA
-        pass
+        USA= "U.S.A"
+        #self.indexer add(USA)
+        #self.assertIn("USA", USA)
+        
 
 
 
