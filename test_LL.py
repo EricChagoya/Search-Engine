@@ -1,14 +1,123 @@
 
-from LL import LL_all
+from LL import LL_all, Postings
 import unittest
 
 
 
+class Test_Postings(unittest.TestCase):
+    def setUp(self):
+        self.Post= Postings(70, 111, [1, 4, 7]) # 2
+        self.Post.add(60, 222, [5]) # 4
+        self.Post.add(70, 555, [3]) # 3
+        self.Post.add(90, 444, [6]) # 1
+        self.Post.add(40, 254, [32, 54, 67])    # 5
+    
+    def test_add(self):
+        """It tests adding to the front, middle, end, and duplicate scores"""
+        self.assertEqual([90, 70, 70, 60, 40], self.Post.scores_to_list() )
+        self.assertEqual([444, 111, 555, 222, 254], self.Post.ids_to_list() )
+        self.assertEqual([[6], [1, 4, 7], [3], [5], [32, 54, 67]], self.Post.positions_to_list() )
+        #print(self.Post.scores_to_list() )
+        #print(self.Post.ids_to_list() )
+        #print(self.Post.positions_to_list() )
+    
+    
+    def test_remove(self):
+        """It removes from the front, middle, end."""
+        self.Post.remove(444)   # Remove Front
+        self.Post.remove(254)   # Remove End
+        self.Post.remove(555)   # Remove Middle
+        self.assertEqual([70, 60], self.Post.scores_to_list() )
+        self.assertEqual([111, 222], self.Post.ids_to_list() )
+        self.assertEqual([[1, 4, 7], [5]], self.Post.positions_to_list() )
+        #print(self.Post.scores_to_list() )
+        #print(self.Post.ids_to_list() )
+        #print(self.Post.positions_to_list() )
+    
+    
+    def test_remove_DNE(self):
+        """It tries to remove an id that does not exist"""
+        try:
+            self.Post.remove(4)
+            self.assertTrue(False, "DNE exception was thrown")
+        except:
+            self.assertTrue(True, "DNE exception was thrown")
+    
+    
+    
+    def test_length(self):
+        self.Post.add(40, 254, [32, 54, 67])
+        self.Post.add(6, 456, [68, 70, 72, 73])
+        self.assertEqual(7, self.Post.length(), "Length is the same")
 
+
+    def test_getters(self):
+        self.assertEqual(90, self.Post.get_score())
+        self.assertEqual(444, self.Post.get_id())
+        self.assertEqual([6], self.Post.get_position())
+        
+        self.Post.next()
+        self.assertEqual(70, self.Post.get_score())
+        self.assertEqual(111, self.Post.get_id())
+        self.assertEqual([1, 4, 7], self.Post.get_position())
+        
+        self.Post.next()
+        self.Post.next()
+        self.Post.next()
+        self.assertEqual(40, self.Post.get_score())
+        self.assertEqual(254, self.Post.get_id())
+        self.assertEqual([32, 54, 67], self.Post.get_position())
+        
+        self.Post.next()
+        self.assertEqual(None, self.Post.get_score())
+        self.assertEqual(None, self.Post.get_id())
+        self.assertEqual(None, self.Post.get_position())
+    
+        
+    def test_next(self):
+        """Once it stops iterating, the value will be None. If you call next on None Node,
+        it still returns None."""
+        self.Post.next()
+        self.Post.next()
+        self.Post.next()
+        self.Post.next()
+        self.Post.next()
+        self.assertEqual(None, self.Post.get_score())
+        self.Post.next()
+        self.assertEqual(None, self.Post.get_score())
+        
+    def test_insert_remove_while_iterating(self):
+        self.Post.next()
+        self.Post.next()
+        self.Post.next()
+        self.Post.next()
+        self.assertEqual([32, 54, 67], self.Post.get_position())
+        self.Post.next()
+        self.assertEqual(None, self.Post.get_position())
+        
+        
+        self.Post.reset()
+        self.Post.next()
+        self.Post.next()
+        self.Post.next()
+        self.assertEqual([5], self.Post.get_position())
+        self.Post.remove(222)
+        self.Post.remove(444)
+        self.assertEqual([32, 54, 67], self.Post.get_position())
+        self.assertEqual(3, self.Post.length())
+        self.Post.add(70.001, 888, [2])
+        
+        self.Post.reset()
+        self.assertEqual([2], self.Post.get_position())
+    
+
+
+"""
 class Test_LL(unittest.TestCase):
 
     def setUp(self):
         self.LL= LL_all([1, 3, 5, 7, 9])
+    
     
     
     def test_empty_initialize_LL(self):
@@ -109,8 +218,8 @@ class Test_LL(unittest.TestCase):
 
     
     def test_next(self):
-        """Once it stops iterating, the value will be None. If you call next on None Node,
-        it still returns None."""
+        ""Once it stops iterating, the value will be None. If you call next on None Node,
+        it still returns None.""
         self.LL.next()
         self.LL.next()
         self.LL.next()
@@ -176,6 +285,7 @@ class Test_LL(unittest.TestCase):
         self.LL.reset()
         self.assertEqual(2, self.LL.value())
         #print(self.LL.LL_to_list())
+"""
 
 
 
