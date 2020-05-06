@@ -21,7 +21,7 @@ def tokenizer(token:str) -> str:
     
     email_pat = re.compile(r'^(?:(\w{0,64})(@)(\w{1,251}).(com))$')
     ip_pat = re.compile(r'^(?:(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3}))$')
-    url_pat = re.compile(r'(?:(https|http)?(://)?(www.)?(\w{1,63})(\.\w*)?(\.(?:com|edu|gov|org|net|mil|int)))')
+    url_pat = re.compile(r'(?:(https|http)?(://)?(www.)?(\w{1,63})(\.\w*)?(\.(?:com|edu|gov|org|net|mil|int|\w{2,3})))')
     if email_pat.match(token) != None:
         return token
     elif ip_pat.match(token) != None:
@@ -45,7 +45,7 @@ def tokenizer(token:str) -> str:
         return None
 
 
-print(tokenizer("https://taubmancollege.umich.edu/"))
+print(tokenizer("https://europa.eu/european-union/index_en"))
 
 # if __name__ == '__main__':
 #     tokenizer(sys.argv[1])
