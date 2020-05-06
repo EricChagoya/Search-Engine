@@ -8,6 +8,8 @@ from nltk.stem import PorterStemmer
 import subprocess
 import sys
 
+import time
+
 
 def file_paths() -> ['dir'] and ['files']:
     """Cycle through content in .json files.  Read the contents; get the tokens
@@ -43,7 +45,7 @@ def index_files(files:[str], names:['file']) -> {'tokens':'Postings'} and {'ids'
                 indexer[k].add(v[0], n, v[1])
             else:
                 indexer[k]= Postings(v[0], n, v[1])
-        if n > 5:
+        if n > 20:
             break
     return indexer, ids
 
@@ -66,7 +68,6 @@ def reader(file:str) -> {'token':['count', ['position'] ] }:
                 count += 1
     return tokens
                 
-
 
 def tokenizer(token:str) -> str: 
     '''takes in a token(key) from token/freq dict
@@ -101,7 +102,6 @@ def tokenizer(token:str) -> str:
         return None
 
 
-
 def priority_terms(file) -> None:
     print(file)
     print("----------------------")
@@ -122,21 +122,37 @@ def print_indexer(index:{'token':'Postings'}):
     print("Tokens\tPostings")
     count= 0
     for k, v in index.items():
-        print(k, v.get_score(), v.get_id(), v.get_position())
-        #Create a new printing structure in Postings
-        # like score, id, position but iterate through it
+        print(k, end= "\t")
+        v.print_nodes()
         count+= 1
         if count > 10:
             break
+
+
+def write_indexer_file(index: {'token':'Postings'}, filename:str) -> None:
+    with open(filename, 'w') as f:
+        for k, v in index.items():
+            v.reset()
+            f.write(k + '\t')
+            while v.finish_iterating() == False:
+                f.write(str(v.get_node()) + " -> ")
+                v.next()
+            f.write("None\n")
 
 
 
 
 
 if __name__ == '__main__':
+    start= time.time()
     json_files, names = file_paths()
+    print("Get File Paths", time.time() - start)
     index, ids= index_files(json_files, names)
-    print_indexer(index)
+    print("Index Files", time.time() - start)
+    #print_indexer(index)
+    write_indexer_file(index, "output_indexer.txt")
+    end= time.time()
+    #print("Finish", end - start)
 
     #reader(json_files[8])
     #reader(json_files[16])
