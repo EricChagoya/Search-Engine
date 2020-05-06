@@ -5,10 +5,10 @@ import subprocess
 import sys,re
 
 
-def install(package):
-    subprocess.check_call([sys.executable, "-m", "pip", "install", package])
-
-install("nltk")
+# def install(package):
+#     subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+# 
+# install("nltk")
 
 from nltk.stem import PorterStemmer
 
@@ -21,11 +21,14 @@ def tokenizer(token:str) -> str:
     
     email_pat = re.compile(r'^(?:(\w{0,64})(@)(\w{1,251}).(com))$')
     ip_pat = re.compile(r'^(?:(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3}))$')
+    url_pat = re.compile(r'(?:(https|http)?(://)?(www.)?(\w{1,63})(\.\w*)?(\.(?:com|edu|gov|org|net|mil|int)))')
     if email_pat.match(token) != None:
         return token
     elif ip_pat.match(token) != None:
         return token
-    
+    elif url_pat.match(token) != None:
+        return token
+    print(url_pat.match(token))
     mod_token = ''
     
     refined_token = token.encode().decode('ascii','replace').replace(u'\ufffd','-')
@@ -42,7 +45,7 @@ def tokenizer(token:str) -> str:
         return None
 
 
-print(tokenizer("129.144.50.56"))
+print(tokenizer("https://taubmancollege.umich.edu/"))
 
 # if __name__ == '__main__':
 #     tokenizer(sys.argv[1])
