@@ -1,4 +1,3 @@
-
 import os
 import json
 import re
@@ -45,8 +44,8 @@ def index_files(files:[str], names:['file']) -> {'tokens':'Postings'} and {'ids'
                 indexer[k].add(v[0], n, v[1])
             else:
                 indexer[k]= Postings(v[0], n, v[1])
-        if n > 1000:
-            break
+        #if n > 10:
+            #break
     return indexer, ids
 
 
