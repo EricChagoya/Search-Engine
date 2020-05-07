@@ -19,7 +19,7 @@ def file_paths() -> ['dir'] and ['files']:
     root_directory = os.path.dirname(__file__)
     for folders, _, files in os.walk(root_directory, topdown= False):
         for jsons in files:
-            if ("ANALYST" in folders) or ("DEV" in folders):
+            if ("DEV" in folders): #or ("ANALYST" in folders)
                 directories.append(os.path.join(folders, jsons))
                 names.append(str(jsons))
     return directories, names
@@ -149,18 +149,13 @@ if __name__ == '__main__':
     print("Get File Paths", time.time() - start)
     index, ids= index_files(json_files, names)
     print("Index Files", time.time() - start)
+    print("Unique Tokens: ",len(index))
+    print("Unique Files:", len(ids))
     #print_indexer(index)
-    write_indexer_file(index, "output_indexer.txt")
+    #write_indexer_file(index, "output_indexer.txt")
     end= time.time()
-    #print("Finish", end - start)
 
-    #reader(json_files[8])
-    #reader(json_files[16])
 
-    #demonstrate that some files might not have headers or bolded text at all
-    #priority_terms(json_files[16])
-    
-    #test unusual headers
-    #priority_terms(json_files[128])
 
-    #priority_terms(json_files[1742])
+
+
