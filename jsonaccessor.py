@@ -1,12 +1,9 @@
-#write a python program that will return the paths of the .json files
+
 import os
 import json
 import re
-#I can assume that this python module will be in the same path as the ANALYST and DEV
-#folders
+from bs4 import BeautifulSoup
 
-#Cycle through content in .json files.  Read the contents; get the tokens and
-#call the indexer
 def file_paths():
     directories = []
 
@@ -47,11 +44,30 @@ def priority_terms(file, dictionary):
 
     print(file)
     print("----------------------")
+    print("print to text file for easy access")
+
     with open(file) as jsonfile:
 
-        content = json.load(jsonfile)['content']
+        content = json.load(jsonfile)
+        
 
-        headers = re.finditer("(<[Hh][123].*<\/[Hh][123]>)|(<[Hh][^tml](ead)?.*?>)", content)
+        json_text = open("textfile.txt", "w")
+        json_text.write(content['url'])
+        json_text.write(content['content'])
+        json_text.close()
+
+        soup = BeautifulSoup(content['content'], 'html.parser')
+        
+        
+        headers = soup.find_all(re.compile("^[Hh][1-9]$"))
+        bolded = soup.findAll("b" )
+
+        print(headers)
+        print(bolded)
+
+
+
+        '''headers = re.finditer("(<[Hh][123].*<\/[Hh][123]>)|(<[Hh][^tml](ead)?.*?>)", content)
         #bolded = re.finditer("<.?[Bb]>.*((<[brBr] \/>)|(</[Bb]>))", content)
         bolded = re.finditer("<.?[Bb].*<(((br \/)|(\/p)|)>)", content)
 
@@ -59,34 +75,24 @@ def priority_terms(file, dictionary):
             print(boldedterm.group())
 
         for header in headers:
-            print(header.group())
+            print(header.group())'''
     return
 
 def reader(file, dictionary):
 
     with open(file) as jsonfile:
         content = json.load(jsonfile)['content']
-
-        individual_lines = content.split('\n') #create a list where every entry is a line
-
-        for single_line in individual_lines:
-            #some lines are empty and are displayed as "" in the list
-            #this code will skip those empty strings
-            single_line = single_line.strip()
-            if len(single_line) >= 1:
-                words = single_line.split(" ")
-
-                for single_word in words:
-                    if len(single_word) >= 1:
-                        print("Possible argument: ", single_word)
+        soup= BeautifulSoup(content, 'html.parser')
+        for text in soup.get_text().split():
+            print(text)
 
     return
 
 
 if __name__ == '__main__':
-    #json_files = file_paths()
+    json_files = file_paths()
 
-    #reader(json_files[8], {})
+    #reader(json_files[16], {})
 
     #demonstrate that some files might not have headers or bolded text at all
     #priority_terms(json_files[16], {})
@@ -95,3 +101,22 @@ if __name__ == '__main__':
     #priority_terms(json_files[128], {})
 
     #priority_terms(json_files[1742], {})
+
+    #Some stuff between the headers may not be useful
+    #priority_terms(json_files[16830], {})
+
+    #Bolded that might not be useful
+    #priority_terms(json_files[30069], {})
+
+    #What should I do with these headers?
+    #priority_terms(json_files[4748], {})
+
+    #small example of stuff between headers not being useful
+    #priority_terms(json_files[34798], {})
+
+    #json file that has no header nor bolded tags.
+    #priority_terms(json_files[38021], {})
+    #reader(json_files[38021], {})
+
+    #Great example for bolded terms
+    #priority_terms(json_files[23191], {})
