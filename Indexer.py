@@ -1,3 +1,6 @@
+
+
+
 import os
 import json
 import re
@@ -18,6 +21,7 @@ def file_paths() -> ['dir'] and ['files']:
     root_directory = os.path.dirname(__file__)
     for folders, _, files in os.walk(root_directory, topdown= False):
         for jsons in files:
+            #if ("ANALYST" in folders):
             if ("DEV" in folders): #or ("ANALYST" in folders)
                 directories.append(os.path.join(folders, jsons))
                 names.append(str(jsons))
@@ -27,8 +31,10 @@ def file_paths() -> ['dir'] and ['files']:
 
 def index_files(files:[str], names:['file']) -> {'tokens':'Postings'} and {'ids':'file'}:
     """Indexer {tokens:'Postings'}"""
+    t= set()
     indexer= dict()
     ids= dict()
+    count= 0
     for n, file in enumerate(files):
         ids[n]= names[n]
         #tokens= reader(files[16])
@@ -38,14 +44,24 @@ def index_files(files:[str], names:['file']) -> {'tokens':'Postings'} and {'ids'
         # Check similarity here. If not similar, then calculate the score and indexer
         
         for k, v in tokens.items():
+            t.add(k)
             score= 0    # Calculate score here
             # Right now score will be frequency
             if k in indexer:
                 indexer[k].add(v[0], n, v[1])
             else:
                 indexer[k]= Postings(v[0], n, v[1])
-        #if n > 10:
-            #break
+        if (n % 100) == 0:
+            print(n)
+            
+        if count > 5000:
+            write_indexer_file(indexer, ids, f"output_indexer{n}.txt")
+            count= 0
+            indexer= dict()
+            print(n)
+        count+= 1
+    print("Number of Websites", n)
+    print("Number of Unique Tokens", len(t) )
     return indexer, ids
 
 
@@ -66,6 +82,7 @@ def reader(file:str) -> {'token':['count', ['position'] ] }:
                     tokens[token][1].append(count)
                 count += 1
     return tokens
+                
 
 def tokenizer(token:str) -> str: 
     '''takes in a token(key) from token/freq dict
@@ -107,6 +124,7 @@ def tokenizer(token:str) -> str:
     else:
         return None
 
+
 def priority_terms(file) -> None:
     print(file)
     print("----------------------")
@@ -134,8 +152,8 @@ def print_indexer(index:{'token':'Postings'}):
             break
 
 
-def write_indexer_file(index: {'token':'Postings'}, filename:str) -> None:
-    with open(filename, 'w', encoding='utf8') as f:
+def write_indexer_file(index: {'token':'Postings'}, ids: {'str'}, filename:str) -> None:
+    with open(filename, 'w', encoding = 'utf8') as f:
         for k, v in index.items():
             v.reset()
             f.write(k + '\t')
@@ -159,5 +177,10 @@ if __name__ == '__main__':
     print("Unique Tokens: ",len(index))
     print("Unique Files:", len(ids))
     #print_indexer(index)
-    write_indexer_file(index, "output_indexer.txt")
+    write_indexer_file(index, ids, "output_indexer.txt")
     end= time.time()
+
+
+
+
+
