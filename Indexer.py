@@ -1,6 +1,3 @@
-
-
-
 import os
 import json
 import re
@@ -9,7 +6,6 @@ from bs4 import BeautifulSoup
 from nltk.stem import WordNetLemmatizer, PorterStemmer
 import subprocess
 import sys
-
 import time
 
 
@@ -21,59 +17,61 @@ def file_paths() -> ['dir'] and ['files']:
     root_directory = os.path.dirname(__file__)
     for folders, _, files in os.walk(root_directory, topdown= False):
         for jsons in files:
-            #if ("ANALYST" in folders):
-            if ("DEV" in folders): #or ("ANALYST" in folders)
+            if ("ANALYST" in folders):
+            #if ("DEV" in folders): #or ("ANALYST" in folders)
                 directories.append(os.path.join(folders, jsons))
                 names.append(str(jsons))
     return directories, names
 
 
 
-def index_files(files:[str], names:['file']) -> {'tokens':'Postings'} and {'ids':'file'}:
-    """Indexer {tokens:'Postings'}"""
-    t= set()
+def index_files(files:[str], names:['file']) -> None:
+    """It indexes after a certain number of websites iterated and then
+    dumps that information into a textfile"""
     indexer= dict()
     ids= dict()
     count= 0
+    num= 0
     for n, file in enumerate(files):
-        ids[n]= names[n]
-        #tokens= reader(files[16])
-        tokens= reader(files[n])
-
-        # Here we get the bolded and header words. Give it tokens as an argument
-        # Check similarity here. If not similar, then calculate the score and indexer
-        
+        tokens, url= reader(files[n])
+        ids[n]= url
+        priority= priority_terms(files[n])
         for k, v in tokens.items():
-            t.add(k)
-            score= 0    # Calculate score here
-            # Right now score will be frequency
+            score= v[0]     # Right now score will be frequency
+            if k in priority:
+                score += priority[k]
+                
             if k in indexer:
-                indexer[k].add(v[0], n, v[1])
+                indexer[k].add(score, n, v[1])
             else:
-                indexer[k]= Postings(v[0], n, v[1])
-        if (n % 100) == 0:
-            print(n)
+                indexer[k]= Postings(score, n, v[1])
+        #if (n % 1000) == 0:
+        #    print(n)
             
-        if count > 5000:
-            write_indexer_file(indexer, ids, f"output_indexer{n}.txt")
+        if count > 700:
+            write_indexer_file(indexer, ids, f"output_indexer{num}.txt")
+            num += 1
             count= 0
             indexer= dict()
-            print(n)
+            print(num)
+            
+        #if n > 290:
+        #    break
         count+= 1
-    print("Number of Websites", n)
-    print("Number of Unique Tokens", len(t) )
-    return indexer, ids
+    write_indexer_file(indexer, ids, f"output_indexer{num}.txt")
+    write_ids_file(ids)
 
 
-def reader(file:str) -> {'token':['count', ['position'] ] }:
+def reader(file:str) -> {'token':['count', ['position'] ] } and 'url':
     """Get the tokens from a file and count how often they appear and positions"""
     tokens= dict()
     with open(file) as jsonfile:
-        content = json.load(jsonfile)['content']
-        soup= BeautifulSoup(content, 'html.parser')
+        file= json.load(jsonfile)
+        url= file['url']
+        soup= BeautifulSoup(file['content'], 'html.parser')
         count= 0
         for word in soup.get_text().split():
-            token= tokenizer(word)     #Indexer(word)
+            token= tokenizer(word)
             if token != None:
                 if token not in tokens:
                     tokens[token]= [1, [count] ]
@@ -81,8 +79,34 @@ def reader(file:str) -> {'token':['count', ['position'] ] }:
                     tokens[token][0] += 1
                     tokens[token][1].append(count)
                 count += 1
-    return tokens
-                
+    return tokens, url
+
+
+def priority_terms(file:str) -> {str:int}:
+    """It sees what words are in the header/bolded to increase the score"""
+    with open(file) as jsonfile:
+        content = json.load(jsonfile)['content']
+        headers = re.finditer("(<[Hh][123].*<\/[Hh][123]>)|(<[Hh][^tml](ead)?.*?>)", content)
+        bolded = re.finditer("<.?[Bb].*<(((br \/)|(\/p)|)>)", content)
+        priority= dict()
+        for boldedterm in bolded:
+            if boldedterm in priority:
+                priority[boldedterm] += 5
+            else:
+                priority[boldedterm]= 5
+            print(boldedterm.group())
+        
+        for header in headers:
+            if header in priority:
+                priority[header] += 5
+            else:
+                priority[header] = 5
+            print(header.group())
+            
+        #if len(priority) > 1:
+        #    print(priority)
+    return priority
+
 
 def tokenizer(token:str) -> str: 
     '''takes in a token(key) from token/freq dict
@@ -100,8 +124,6 @@ def tokenizer(token:str) -> str:
         return token
     elif url_pat.match(token) != None:
         return token
-#     print(url_pat.match(token))
-    mod_token = ''
     
     refined_token = token.encode().decode('ascii','replace').replace(u'\ufffd','-')
     
@@ -115,70 +137,44 @@ def tokenizer(token:str) -> str:
     else:
         itemized_token = re.split('\W', stemmed_token.rstrip())
     #https://stackoverflow.com/questions/24517722/how-to-stop-nltk-stemmer-from-removing-the-trailing-e
-#     print(itemized_token)
+    mod_token = ''
     for i in itemized_token:
         mod_token += i
-        
+
     if len(mod_token) >= 1:
         return mod_token.lower()
-    else:
-        return None
-
-
-def priority_terms(file) -> None:
-    print(file)
-    print("----------------------")
-    with open(file) as jsonfile:
-        content = json.load(jsonfile)['content']
-        headers = re.finditer("(<[Hh][123].*<\/[Hh][123]>)|(<[Hh][^tml](ead)?.*?>)", content)
-        #bolded = re.finditer("<.?[Bb]>.*((<[brBr] \/>)|(</[Bb]>))", content)
-        bolded = re.finditer("<.?[Bb].*<(((br \/)|(\/p)|)>)", content)
-
-        for boldedterm in bolded:
-            print(boldedterm.group())
-
-        for header in headers:
-            print(header.group())
-
-
-def print_indexer(index:{'token':'Postings'}):
-    print("Tokens\tPostings")
-    count= 0
-    for k, v in index.items():
-        print(k, end= "\t")
-        v.print_nodes()
-        count+= 1
-        if count > 10:
-            break
 
 
 def write_indexer_file(index: {'token':'Postings'}, ids: {'str'}, filename:str) -> None:
-    with open(filename, 'w', encoding = 'utf8') as f:
-        for k, v in index.items():
+    with open(filename, "w", encoding = 'utf8') as f:
+        for k, v in sorted(index.items()):
             v.reset()
-            f.write(k + '\t')
+            f.write(k + "\t" + str(v.counter()) + "\t")
             while v.finish_iterating() == False:
-                f.write(str(v.get_node()) + " -> ")
+                f.write(" -> " + str(v.get_node()))
                 v.next()
-            f.write("None\n")
-        f.write("Unique Tokens: " + str(len(index)) )
-        f.write("Unique Files:" + str(len(ids)) )
+            f.write("\n")
+
+
+def write_ids_file(ids:{int: str}) -> None:
+    filename= "ids_identifier.txt"
+    with open(filename, 'w', encoding = 'utf8') as f:
+        for k, v in sorted(ids.items()):
+            f.write(str(k) + "\t" + v + "\n")
+    
 
 
 
 
 
 if __name__ == '__main__':
-    start= time.time()
     json_files, names = file_paths()
-    print("Get File Paths", time.time() - start)
-    index, ids= index_files(json_files, names)
-    print("Index Files", time.time() - start)
-    print("Unique Tokens: ",len(index))
-    print("Unique Files:", len(ids))
-    #print_indexer(index)
-    write_indexer_file(index, ids, "output_indexer.txt")
-    end= time.time()
+    index_files(json_files, names)
+
+
+
+
+
 
 
 
