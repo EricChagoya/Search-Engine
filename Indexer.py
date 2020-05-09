@@ -48,18 +48,19 @@ def index_files(files:[str], names:['file']) -> None:
         #if (n % 1000) == 0:
         #    print(n)
             
-        if count > 700:
+        if count > 30:
             write_indexer_file(indexer, ids, f"output_indexer{num}.txt")
             num += 1
             count= 0
             indexer= dict()
             print(num)
             
-        #if n > 290:
-        #    break
+        if n > 29:
+            break
         count+= 1
     write_indexer_file(indexer, ids, f"output_indexer{num}.txt")
     write_ids_file(ids)
+    #search(index)
 
 
 def reader(file:str) -> {'token':['count', ['position'] ] } and 'url':
@@ -86,25 +87,31 @@ def priority_terms(file:str) -> {str:int}:
     """It sees what words are in the header/bolded to increase the score"""
     with open(file) as jsonfile:
         content = json.load(jsonfile)['content']
-        headers = re.finditer("(<[Hh][123].*<\/[Hh][123]>)|(<[Hh][^tml](ead)?.*?>)", content)
-        bolded = re.finditer("<.?[Bb].*<(((br \/)|(\/p)|)>)", content)
+        soup = BeautifulSoup(content, 'html.parser')
+
+        headers = soup.find_all(re.compile("(^[Hh][1-9]$)|(header)"))
+        bolded = soup.findAll("b")
+
         priority= dict()
-        for boldedterm in bolded:
-            if boldedterm in priority:
-                priority[boldedterm] += 5
-            else:
-                priority[boldedterm]= 5
-            print(boldedterm.group())
+        if bolded is not None:
+            for boldedterm in bolded:
+                sentence = boldedterm.get_text()
+                for word in sentence.split(" "):
+                    if word is not None:
+                        if word in priority:
+                            priority[word] += 5
+                        else:
+                            priority[word]= 5
         
-        for header in headers:
-            if header in priority:
-                priority[header] += 5
-            else:
-                priority[header] = 5
-            print(header.group())
-            
-        #if len(priority) > 1:
-        #    print(priority)
+        if headers is not None:
+            for header in headers:
+                sentence = header.get_text()
+                for word in sentence.split(" "):
+                    if word is not None:
+                        if word in priority:
+                            priority[word] += 5
+                        else:
+                            priority[word] = 5
     return priority
 
 
@@ -163,7 +170,12 @@ def write_ids_file(ids:{int: str}) -> None:
             f.write(str(k) + "\t" + v + "\n")
     
 
-
+def alphabetical_indexer() -> None:
+    """Give all the documents use dumped into an index. Also input how many
+    documents you want the index and how to separate them.
+    For examples you want 4 documents of A-F, G-M, N-S, T-Z.
+    It also writes another file that says where the letter B, C, D ..., Z."""
+    pass
 
 
 
