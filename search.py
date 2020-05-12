@@ -8,15 +8,17 @@ def searching(t:['tinker_objects???']) -> None:
     """Gets user input and displays the top n websites"""
     partial_index= dict()
     ids= get_ids()
+    seeker= seek_dict()
     num_display= 5
     while True:
         query_terms= "machine" # valid_query() #Ask user until valid 
 
         start= time.time()
-        ranked, partial_index= search(query_terms, partial_index, num_display)
+        ranked, partial_index= search(query_terms, partial_index,
+                                      seeker, num_display)
         ranked_order= decode_ids(ranked, ids, num_display)
 
-        # Display ranked order
+        # Display ranked_order
         end= time.time()
         total_time= end - start
         print(total_time, "seconds")
@@ -28,16 +30,15 @@ def searching(t:['tinker_objects???']) -> None:
 
 
 
-def search(query_terms:[str], partial_index:{'token':'Posting'},
+def search(query_terms:[str], partial_index:{'token':'Posting'}, seeker: {str:int},
            num_display:int) -> {'id':'score'} and {'token':'Posting'}:
+    """It finds a large number of relevant websites and scores them"""
     max_look= len(query_terms) * num_display * 4
-    ranked= update_partial_index(query_terms, partial_index)
+    ranked= update_partial_index(query_terms, partial_index, seeker)
 
     for ids in ranked.keys():
         position_score= 1 # ranker.query_match(partial_index, query_terms, id, max_look)
         ranked[ids] += position_score
-
-
 
     return ranked, partial_index
 
@@ -45,7 +46,8 @@ def search(query_terms:[str], partial_index:{'token':'Posting'},
 
 
 
-def update_partial_index(query_terms:[str], partial_index:{"token":"Posting"}) -> {'id':'score'}:
+def update_partial_index(query_terms:[str], partial_index:{"token":"Posting"},
+                         seeker:{str:int}) -> {'id':'score'}:
     """Put query terms in the partial index"""
     sorted_terms= [t for t in sorted(query_terms)]
     ranked= dict()
@@ -84,7 +86,18 @@ def decode_ids(ranked:{int:int}, ids:{int:str}, max_urls:int) -> [str]:
             return ranked_order
 
 
-
+def seek_dict() -> {'letter':int}:
+    """It read a file that says where each
+    letter is positioned"""
+    file= "find_letter.txt"
+    seeker= dict()
+    with open(file, "r", encoding= "utf8") as f:
+        for line in f:
+            line= line.split()
+            seeker[line[0]]= line[1]
+    return seeker
+        
+    
 
 
 
