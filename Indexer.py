@@ -168,27 +168,162 @@ def write_ids_file(ids:{int: str}) -> None:
     with open(filename, 'w', encoding = 'utf8') as f:
         for k, v in sorted(ids.items()):
             f.write(str(k) + "\t" + v + "\n")
-    
 
-def alphabetical_indexer() -> None:
-    """Give all the documents use dumped into an index. Also input how many
-    documents you want the index and how to separate them.
-    For examples you want 4 documents of A-F, G-M, N-S, T-Z.
-    It also writes another file that says where the letter B, C, D ..., Z."""
-    pass
+
+
+def sort_indexer() -> None:
+    """Deal with file managment"""
+    with open("output_indexer0.txt", "r", encoding = 'utf8') as f0, \
+         open("output_indexer1.txt", "r", encoding = 'utf8') as f1, \
+         open("output_indexer2.txt", "r", encoding = 'utf8') as f2, \
+         open("A-F_output_indexer.txt", "w", encoding = 'utf8') as w0, \
+         open("G-M_output_indexer.txt", "w", encoding = 'utf8') as w1, \
+         open("N-S_output_indexer.txt", "w", encoding = 'utf8') as w2, \
+         open("T-Z_output_indexer.txt", "w", encoding = 'utf8') as w3:
+        files= [f0, f1, f2]
+        write_files= [w0, w1, w2, w3]
+        generator_files= [parse_line(f) for f in files]
+        alphabetical_indexer(generator_files, write_files)
+
+
+
+def parse_line(open_file: 'file_object') -> ['token', 'Postings']:
+    """A generator for file_objects. It makes sure to iterate through the back
+    so that it adds to the beginning of the LL."""
+    for line in open_file:
+        line= line.split("\t")
+        line[2]= [i.strip() for i in line[2].split("->") if len(i) > 1]
+        last= eval(line[2][-1])
+        post= Postings(last[0], last[1], last[2])
+        if len(line[2]) > 1:
+            for i in range(-2, -len(line[2]) - 1, -1):
+                p= eval(line[2][i])
+                post.add(p[0], p[1], p[2])
+        yield line[0].lower(), post
+    yield None
+
+
+def starting_lines(files:['generator']) -> ['postings']:
+    tokens= []
+    postings= []
+    for line in files:
+        line= next(line)
+        tokens.append(line[0])
+        postings.append(line[1])
+    return tokens, postings
+
+
+
+
+def alphabetical_indexer(r_files:['generator'], w_files:['file_object']) -> None:
+    """It iterates through previous indexes so it can create a couple of new
+    indexes in alphabetical order. This way all the "a" indexes are in the
+    same file"""
+    tokens, postings= starting_lines(r_files)    
+    letters= ["a-f", "g-m", "n-s", "t-z"]    
+    while len(r_files) > 0:
+        word, similar_index= same_word(tokens)
+        """
+        print("Word:", word)
+        print("Tokens:", tokens)
+        print("Similar Index", similar_index)
+        print("Postings", postings)
+        print()
+        """
+        if len(similar_index) == 1:
+            post_line= update_single(similar_index[0], r_files, tokens, postings)
+        else:
+            post_line= update_multiple(similar_index, r_files, tokens, postings)
+
+        if word[0] > letters[0][-1]:
+            w_files.pop(0)
+            letters.pop(0)
+
+        write_single_posting(word, post_line, w_files[0])
+            
+
+def same_word(tokens:['str']) -> str and [int]:
+    """It sees what word appears first. If multiple files share
+    the same first word, then return a list of their indexes"""
+    first = "{"
+    similar_index = []
+    for n, token in enumerate(tokens):
+        if token == first:
+            similar_index.append(n)
+        elif token < first:
+            first= token
+            similar_index = [n]
+    return first, similar_index
+
+
+def update_single(n:int, r_files:['file_objects'], tokens:['str'],
+                  postings:['Posting']) -> 'Posting':
+    """It will return the posting. If the next line in the file is empty,
+    remove that index from the list of files, tokens, and postings"""
+    post_line= postings[n]
+    next_line= next(r_files[n] )
+    if next_line == None:
+        del r_files[n]
+        del tokens[n]
+        del postings[n]
+    else:
+        tokens[n] = next_line[0]
+        postings[n]= next_line[1]
+    return post_line
+
+    
+def update_multiple(indexes:[int], r_files:['file_objects'], tokens:['str'],
+                    postings:['Posting']) -> 'Posting':
+    """It will return the posting. If the next line in the file is empty,
+    remove that index from the list of files, tokens, and postings. It does
+    this if multiple files share the same next word"""
+    n= indexes[0]
+    post_line= postings[n]
+
+    for i in range(1, len(indexes)):
+        n= indexes[i]
+        #post_line.combine(postings[n])
+
+    for i in range(len(indexes) - 1, -1, -1):
+        n= indexes[i]
+        next_line= next(r_files[n])
+        if next_line == None:
+            del r_files[n]
+            del tokens[n]
+            del postings[n]
+        else:
+            tokens[n] = next_line[0]
+            postings[n]= next_line[1]
+    return post_line
+
+
+def write_single_posting(word:str, post_line:'Posting', f: ['file_object']) -> None:
+    post_line.reset()
+    f.write(word + "\t" + str(post_line.counter()) + "\t")
+    while post_line.finish_iterating() == False:
+        f.write(" -> " + str(post_line.get_node()) )
+        post_line.next()
+    f.write("\n")
+
+
+
+
+
+
+# Add a method in Postings called .combine() that combine two Postings
+# so I can write it into a file.
+
+# Fix my LL. Some methods aren't working as intended.
+# total is how often the word appears. the sum of all the positions
+# counter should be the number of nodes
+
+
+
+
 
 
 
 if __name__ == '__main__':
-    json_files, names = file_paths()
-    index_files(json_files, names)
-
-
-
-
-
-
-
-
-
-
+    sort_indexer()
+    #json_files, names = file_paths()
+    #index_files(json_files, names)
