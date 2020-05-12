@@ -17,8 +17,8 @@ def file_paths() -> ['dir'] and ['files']:
     root_directory = os.path.dirname(__file__)
     for folders, _, files in os.walk(root_directory, topdown= False):
         for jsons in files:
-            if ("ANALYST" in folders):
-            #if ("DEV" in folders): #or ("ANALYST" in folders)
+            #if ("ANALYST" in folders):
+            if ("DEV" in folders): #or ("ANALYST" in folders)
                 directories.append(os.path.join(folders, jsons))
                 names.append(str(jsons))
     return directories, names
@@ -45,22 +45,22 @@ def index_files(files:[str], names:['file']) -> None:
                 indexer[k].add(score, n, v[1])
             else:
                 indexer[k]= Postings(score, n, v[1])
-        #if (n % 1000) == 0:
-        #    print(n)
+        if (n % 1000) == 0:
+            print(n)
             
-        if count > 30:
+        if count > 5000:
             write_indexer_file(indexer, ids, f"output_indexer{num}.txt")
             num += 1
             count= 0
             indexer= dict()
             print(num)
             
-        if n > 29:
-            break
+        #if n > 29:
+        #    break
         count+= 1
     write_indexer_file(indexer, ids, f"output_indexer{num}.txt")
     write_ids_file(ids)
-    #search(index)
+    
 
 
 def reader(file:str) -> {'token':['count', ['position'] ] } and 'url':
@@ -74,6 +74,7 @@ def reader(file:str) -> {'token':['count', ['position'] ] } and 'url':
         for word in soup.get_text().split():
             token= tokenizer(word)
             if token != None:
+                token= token.lower()
                 if token not in tokens:
                     tokens[token]= [1, [count] ]
                 else:
@@ -176,12 +177,13 @@ def sort_indexer() -> None:
     with open("output_indexer0.txt", "r", encoding = 'utf8') as f0, \
          open("output_indexer1.txt", "r", encoding = 'utf8') as f1, \
          open("output_indexer2.txt", "r", encoding = 'utf8') as f2, \
-         open("A-F_output_indexer.txt", "w", encoding = 'utf8') as w0, \
-         open("G-M_output_indexer.txt", "w", encoding = 'utf8') as w1, \
-         open("N-S_output_indexer.txt", "w", encoding = 'utf8') as w2, \
-         open("T-Z_output_indexer.txt", "w", encoding = 'utf8') as w3:
+         open("0-9_output_indexer.txt", "w", encoding = 'utf8') as w0, \
+         open("A-F_output_indexer.txt", "w", encoding = 'utf8') as w1, \
+         open("G-M_output_indexer.txt", "w", encoding = 'utf8') as w2, \
+         open("N-S_output_indexer.txt", "w", encoding = 'utf8') as w3, \
+         open("T-Z_output_indexer.txt", "w", encoding = 'utf8') as w4:
         files= [f0, f1, f2]
-        write_files= [w0, w1, w2, w3]
+        write_files= [w0, w1, w2, w3, w4]
         generator_files= [parse_line(f) for f in files]
         alphabetical_indexer(generator_files, write_files)
 
@@ -213,23 +215,14 @@ def starting_lines(files:['generator']) -> ['postings']:
     return tokens, postings
 
 
-
-
 def alphabetical_indexer(r_files:['generator'], w_files:['file_object']) -> None:
     """It iterates through previous indexes so it can create a couple of new
     indexes in alphabetical order. This way all the "a" indexes are in the
     same file"""
     tokens, postings= starting_lines(r_files)    
-    letters= ["a-f", "g-m", "n-s", "t-z"]    
+    letters= ["0-9", "a-f", "g-m", "n-s", "t-z"]    
     while len(r_files) > 0:
         word, similar_index= same_word(tokens)
-        """
-        print("Word:", word)
-        print("Tokens:", tokens)
-        print("Similar Index", similar_index)
-        print("Postings", postings)
-        print()
-        """
         if len(similar_index) == 1:
             post_line= update_single(similar_index[0], r_files, tokens, postings)
         else:
@@ -238,7 +231,6 @@ def alphabetical_indexer(r_files:['generator'], w_files:['file_object']) -> None
         if word[0] > letters[0][-1]:
             w_files.pop(0)
             letters.pop(0)
-
         write_single_posting(word, post_line, w_files[0])
             
 
@@ -282,7 +274,7 @@ def update_multiple(indexes:[int], r_files:['file_objects'], tokens:['str'],
 
     for i in range(1, len(indexes)):
         n= indexes[i]
-        #post_line.combine(postings[n])
+        post_line.combine(postings[n])
 
     for i in range(len(indexes) - 1, -1, -1):
         n= indexes[i]
@@ -310,14 +302,11 @@ def write_single_posting(word:str, post_line:'Posting', f: ['file_object']) -> N
 
 
 
-# Add a method in Postings called .combine() that combine two Postings
-# so I can write it into a file.
 
 # Fix my LL. Some methods aren't working as intended.
-# total is how often the word appears. the sum of all the positions
 # counter should be the number of nodes
 
-
+#Seek
 
 
 
