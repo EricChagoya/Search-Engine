@@ -11,7 +11,7 @@ from LL import Postings
 #    i.get_ID == ID
 
 #phrase = [1, 2, 3, 4, 5] # = words
-#phrase = [1, 2, 3, 5, 4] shit order
+#phrase = [1, 2, 3, 5, 4]
 
 #previous = 4
 #current = 5
