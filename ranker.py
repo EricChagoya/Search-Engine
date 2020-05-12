@@ -11,7 +11,7 @@ from LL import Postings
 #    i.get_ID == ID
 
 #phrase = [1, 2, 3, 4, 5] # = words
-#phrase = [1, 2, 3, 5, 4]
+#phrase = [1, 2, 3, 5, 4] #not the right order
 
 #previous = 4
 #current = 5
@@ -85,7 +85,13 @@ def query_match(index_file, phrase, ID):
                 for first_word_position in front_word_positions:
                     for second_word_position in back_word_positions:
 
-                        if abs(first_word_position - second_word_position) == 1:
+                        if abs(first_word_position - second_word_position) == 4:
+                            score += 2
+                        elif abs(first_word_position - second_word_position) == 3:
+                            score += 3
+                        elif abs(first_word_position - second_word_position) == 2:
+                            score += 4
+                        elif abs(first_word_position - second_word_position) == 1:
                             score += 5
                             if not (inspected_pair in inspected_words):
                                 inspected_words.append(inspected_pair)
