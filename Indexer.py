@@ -99,6 +99,7 @@ def priority_terms(file:str) -> {str:int}:
                 sentence = boldedterm.get_text()
                 for word in sentence.split(" "):
                     if word is not None:
+                        word= word.lower()
                         if word in priority:
                             priority[word] += 5
                         else:
@@ -108,6 +109,7 @@ def priority_terms(file:str) -> {str:int}:
             for header in headers:
                 sentence = header.get_text()
                 for word in sentence.split(" "):
+                    word= word.lower()
                     if word is not None:
                         if word in priority:
                             priority[word] += 5
@@ -291,28 +293,67 @@ def update_multiple(indexes:[int], r_files:['file_objects'], tokens:['str'],
 
 def write_single_posting(word:str, post_line:'Posting', f: ['file_object']) -> None:
     post_line.reset()
-    f.write(word + "\t" + str(post_line.counter()) + "\t")
+    f.write(word.strip() + "\t" + str(post_line.counter()).strip() + "\t")
     while post_line.finish_iterating() == False:
-        f.write(" -> " + str(post_line.get_node()) )
+        f.write(" -> " + str(post_line.get_node()).strip() )
         post_line.next()
     f.write("\n")
 
 
 
+def seek() -> None:
+    """It tries to find where each letter starts in each file. Like at what position
+    is the letter 'g', so it doesn't have to iterate a-f to find g"""
+    with open("0-9_output_indexer.txt", "r", encoding = 'utf8') as f0, \
+         open("A-F_output_indexer.txt", "r", encoding = 'utf8') as f1, \
+         open("G-M_output_indexer.txt", "r", encoding = 'utf8') as f2, \
+         open("N-S_output_indexer.txt", "r", encoding = 'utf8') as f3, \
+         open("T-Z_output_indexer.txt", "r", encoding = 'utf8') as f4, \
+         open("find_letter.txt", "w", encoding = 'utf8') as w:
+        lst= ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+              'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
+              'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
+              'u', 'v', 'w', 'x', 'y', 'z', '{']
+        files= [f0, f1, f2, f3, f4]
+        t= []
+
+        for f in files:
+            t0= []
+            char_number= 0
+            for line in f:
+                letter= line[0]
+                if letter == lst[0]:
+                    if letter == 'c':
+                        char_number+= 1
+                    t0.append(char_number)
+                    w.write(letter + "\t" + str(char_number) + "\n")
+                    lst.pop(0)
+
+                char_number += len(line) + 1
+            t.append(t0)
+        """
+        print(t)
+        for f, tt in zip(files, t):
+            for num in tt:
+                f.seek(num)
+                line= f.readline()
+                print(line[:40])
+            print()
+        """
 
 
 
-
-# Fix my LL. Some methods aren't working as intended.
-# counter should be the number of nodes
-
-#Seek
 
 
 
 
 
 if __name__ == '__main__':
-    sort_indexer()
     #json_files, names = file_paths()
     #index_files(json_files, names)
+    #sort_indexer()
+    seek()
+
+
+
+    
