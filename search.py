@@ -2,6 +2,8 @@
 # Do we show them nothing or keep asking them until they ask for a valid response?
 
 import time
+from LL import Postings
+import Indexer
 
 
 def searching(t:['tinker_objects???']) -> None:
@@ -11,8 +13,10 @@ def searching(t:['tinker_objects???']) -> None:
     seeker= seek_dict()
     num_display= 5
     while True:
-        query_terms= "machine" # valid_query() #Ask user until valid 
-
+        #query_terms= ["a", "b", "d"]
+        query_terms= "zybook computer 4th apple horse michael machine noctural zebra".split()
+        #query_terms= "4th apple horse michael machine".split() # valid_query() #Ask user until valid 
+        # Need to apply the same tokenizer rules to the query terms
         start= time.time()
         ranked, partial_index= search(query_terms, partial_index,
                                       seeker, num_display)
@@ -34,7 +38,8 @@ def search(query_terms:[str], partial_index:{'token':'Posting'}, seeker: {str:in
            num_display:int) -> {'id':'score'} and {'token':'Posting'}:
     """It finds a large number of relevant websites and scores them"""
     max_look= len(query_terms) * num_display * 4
-    ranked= update_partial_index(query_terms, partial_index, seeker)
+    update_partial_index(query_terms, partial_index, seeker)
+    ranked= dict()
 
     for ids in ranked.keys():
         position_score= 1 # ranker.query_match(partial_index, query_terms, id, max_look)
@@ -47,19 +52,81 @@ def search(query_terms:[str], partial_index:{'token':'Posting'}, seeker: {str:in
 
 
 def update_partial_index(query_terms:[str], partial_index:{"token":"Posting"},
-                         seeker:{str:int}) -> {'id':'score'}:
+                         seeker:{str:int}) -> None:
     """Put query terms in the partial index"""
-    sorted_terms= [t for t in sorted(query_terms)]
+    sorted_terms= [t for t in sorted(query_terms) if t not in partial_index]
+    files= sorted_lookup(sorted_terms)
+    print(sorted_terms)
+    print(files)
+    
     ranked= dict()
-    # File shenanigans
-    for t in sorted_terms:
-        if t not in partial_index:
-            pass
-            # Find it in the file
-            # It iterate through the files using seek
-    return ranked
+    count= 0
+        
+
+    for group, n in enumerate(files):
+        print(group, n)
+        if n > 0:
+            if group == 0:
+                with open("0-9_output_indexer.txt", "r", encoding = 'utf8') as f0:
+                    count= find_term(f0, sorted_terms, partial_index, seeker, count, n)
+            elif group == 1:
+                with open("A-F_output_indexer.txt", "r", encoding = 'utf8') as f1:
+                    count= find_term(f1, sorted_terms, partial_index, seeker, count, n)
+            elif group == 2:
+                with open("G-M_output_indexer.txt", "r", encoding = 'utf8') as f2:
+                    count= find_term(f2, sorted_terms, partial_index, seeker, count, n)
+            elif group == 3:
+                with open("N-S_output_indexer.txt", "r", encoding = 'utf8') as f3:
+                    count= find_term(f3, sorted_terms, partial_index, seeker, count, n)
+            else:
+                with open("T-Z_output_indexer.txt", "r", encoding = 'utf8') as f4:
+                    count= find_term(f4, sorted_terms, partial_index, seeker, count, n)
+
+    for k, v in partial_index.items():
+        print(k ,v)
 
 
+def find_term(f:['file_object'], sorted_terms: [str], partial_index:{'token':'Postings'},
+              seeker:{int, int}, count: int, n: int) -> int:
+    """Find the term in the index for those range of letters. Add it to the partial index
+    if found. If not, go to the next term"""
+    f.seek(int(seeker[sorted_terms[count][0]])) #Get position of the letter
+    
+    while n > 0:
+        line= f.readline().split("\t")
+        if line[0] == sorted_terms[count]:
+            partial_index[line[0]]= Indexer.add_posting(line)
+            count += 1
+            n -= 1
+            if (len(sorted_terms) != count) and (sorted_terms[1][0] != line[0]):
+                f.seek(int(seeker[sorted_terms[count][0]]))
+        elif line[0] > sorted_terms[count]:
+            count += 1
+            n -= 1
+            if (len(sorted_terms) != count) and (sorted_terms[1][0] != line[0]):
+                f.seek(int(seeker[sorted_terms[count][0]]))
+    return count
+
+
+
+def sorted_lookup(terms:[str]) -> ['str']:
+    """It sees which file to look at for each query term. It returns
+    a list of how often that word appears in the file"""
+    files= [0, 0, 0, 0, 0]
+    for letter in terms:
+        letter= letter[0]
+        if letter < 'a':
+            files[0] += 1
+        elif letter < 'g':
+            files[1] += 1
+        elif letter < 'n':
+            files[2] += 1
+        elif letter < 't':
+            files[3] += 1
+        else:
+            files[4] += 1
+    return files
+    
 
 
 def get_ids() -> {int:str}:
