@@ -1,6 +1,5 @@
 from LL import Postings
 from builtins import str
-import inspect
 #1)Isolate each query term from the user\'s input.
 #2)Check if each query term is in the indexer (dictionary)
 #3)Read their postings/nodes.
@@ -69,44 +68,53 @@ def query_match(index_file, phrase, ID):
     score = 0
 
     queries = phrase.split(" ")
-
-    #begin word-by-word process----------------------------------------------------------
-    for a in range(1, len(queries)):
-        front_of_pair = queries[a] #word in the front
-#         print("front: " + front_of_pair)
-        back_of_pair = queries[a-1] #word preceding front_of_pair
-#         print("back: " + back_of_pair)
-
-        inspected_pair = (back_of_pair, front_of_pair) #I'll use this pair later
-        front_word_positions = store_positions(index_file, front_of_pair, ID)
-        back_word_positions = store_positions(index_file, back_of_pair, ID)
-
-        #begin comparison for positions--------------------------------------------------
-        if not ((inspected_pair in inspected_words) or ((inspected_pair[1], inspected_pair[0]) in inspected_words)):
-            if not (front_word_positions is None or back_word_positions is None):
-                #[1, 3] #first word
-                #[2] #second word
-                for first_word_position in front_word_positions:
-                    for second_word_position in back_word_positions:
-
-#                         if abs(first_word_position - second_word_position) == 4:
-#                             score += 2
-#                         elif abs(first_word_position - second_word_position) == 3:
-#                             score += 3
-#                         elif abs(first_word_position - second_word_position) == 2:
-#                             score += 4
-                        if abs(first_word_position - second_word_position) == 1:
-                            score += 5
-                            if not ((inspected_pair in inspected_words) or ((inspected_pair[1], inspected_pair[0]) in inspected_words)):
-                                inspected_words.append(inspected_pair)
-        #end comparison for positions-----------------------------------------------------
-#         print(inspected_words)
-    #end word-by-word process-------------------------------------------------------------
+    if len(queries) > 1:
+        #begin word-by-word process----------------------------------------------------------
+        for a in range(1, len(queries)):
+            front_of_pair = queries[a] #word in the front
+    #         print("front: " + front_of_pair)
+            back_of_pair = queries[a-1] #word preceding front_of_pair
+    #         print("back: " + back_of_pair)
+    
+            inspected_pair = (back_of_pair, front_of_pair) #I'll use this pair later
+            front_word_positions = store_positions(index_file, front_of_pair, ID)
+            back_word_positions = store_positions(index_file, back_of_pair, ID)
+    
+            #begin comparison for positions--------------------------------------------------
+            if not ((inspected_pair in inspected_words) or ((inspected_pair[1], inspected_pair[0]) in inspected_words)):
+                if not (front_word_positions is None or back_word_positions is None):
+                    #[1, 3] #first word
+                    #[2] #second word
+                    for first_word_position in front_word_positions:
+                        for second_word_position in back_word_positions:
+    
+    #                         if abs(first_word_position - second_word_position) == 4:
+    #                             score += 2
+    #                         elif abs(first_word_position - second_word_position) == 3:
+    #                             score += 3
+    #                         elif abs(first_word_position - second_word_position) == 2:
+    #                             score += 4
+                            if abs(first_word_position - second_word_position) == 1:
+                                score += 5
+                                if not ((inspected_pair in inspected_words) or ((inspected_pair[1], inspected_pair[0]) in inspected_words)):
+                                    inspected_words.append(inspected_pair)
+            #end comparison for positions-----------------------------------------------------
+    #         print(inspected_words)
+        #end word-by-word process-------------------------------------------------------------
+    elif len(queries) == 1 and (queries[0] in index_file):
+        score += 10
     return score
 
 
 
 if __name__ == '__main__':
+    acm = Postings(1,10,[7])
+    test_output = {"ACM": acm}
+    
+    score = query_match(test_output, "MAD", 10)
+    print("Sample phrase: MAD")
+    print("Expected score: 0 | Actual score:", score, "\n")
+    
     #to
     post1 = Postings(1, 1, [41])
     post1.add(1, 1, [45])
