@@ -14,7 +14,7 @@ def searching(t:['tinker_objects???']) -> None:
     num_display= 5
     while True:
         #query_terms= ["a", "b", "d"]
-        query_terms= "zybook computer 4th apple horse michael machine noctural zebra".split()
+        query_terms= "zybook computer 4th apple n horse michael machine noctural zebra".split()
         #query_terms= "4th apple horse michael machine".split() # valid_query() #Ask user until valid 
         # Need to apply the same tokenizer rules to the query terms
         start= time.time()
@@ -39,12 +39,19 @@ def search(query_terms:[str], partial_index:{'token':'Posting'}, seeker: {str:in
     """It finds a large number of relevant websites and scores them"""
     max_look= len(query_terms) * num_display * 4
     update_partial_index(query_terms, partial_index, seeker)
-    ranked= dict()
+    for k, v in partial_index.items():
+        print('Term:', k)
+        #v.print_nodes()
+        print()
+    
+    ranked= dict() # Do rankings here
+    # Don't change partial index
+    # ranked= {id of the website:score}
 
     for ids in ranked.keys():
         position_score= 1 # ranker.query_match(partial_index, query_terms, id, max_look)
         ranked[ids] += position_score
-
+    
     return ranked, partial_index
 
 
@@ -53,18 +60,13 @@ def search(query_terms:[str], partial_index:{'token':'Posting'}, seeker: {str:in
 
 def update_partial_index(query_terms:[str], partial_index:{"token":"Posting"},
                          seeker:{str:int}) -> None:
-    """Put query terms in the partial index"""
+    """If query terms are in the bigger index, put them in the partial index.
+    If not, don't do anything"""
     sorted_terms= [t for t in sorted(query_terms) if t not in partial_index]
     files= sorted_lookup(sorted_terms)
-    print(sorted_terms)
-    print(files)
-    
-    ranked= dict()
     count= 0
         
-
     for group, n in enumerate(files):
-        print(group, n)
         if n > 0:
             if group == 0:
                 with open("0-9_output_indexer.txt", "r", encoding = 'utf8') as f0:
@@ -81,9 +83,6 @@ def update_partial_index(query_terms:[str], partial_index:{"token":"Posting"},
             else:
                 with open("T-Z_output_indexer.txt", "r", encoding = 'utf8') as f4:
                     count= find_term(f4, sorted_terms, partial_index, seeker, count, n)
-
-    for k, v in partial_index.items():
-        print(k ,v)
 
 
 def find_term(f:['file_object'], sorted_terms: [str], partial_index:{'token':'Postings'},
@@ -108,7 +107,6 @@ def find_term(f:['file_object'], sorted_terms: [str], partial_index:{'token':'Po
     return count
 
 
-
 def sorted_lookup(terms:[str]) -> ['str']:
     """It sees which file to look at for each query term. It returns
     a list of how often that word appears in the file"""
@@ -126,7 +124,7 @@ def sorted_lookup(terms:[str]) -> ['str']:
         else:
             files[4] += 1
     return files
-    
+
 
 
 def get_ids() -> {int:str}:
@@ -138,9 +136,6 @@ def get_ids() -> {int:str}:
             line= line.split()
             ids[line[0]]= line[1]
     return ids
-
-
-
 
 def decode_ids(ranked:{int:int}, ids:{int:str}, max_urls:int) -> [str]:
     """Returns a list of urls sorted by the highest ranking first"""
