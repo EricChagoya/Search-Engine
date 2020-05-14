@@ -51,19 +51,24 @@ def search(query_terms:[str], partial_index:{'token':'Posting'}, seeker: {str:in
     # ranked= {id of the website:score}
     
     for k, v in partial_index.items():
-        if  v.length() <= 1000:
+#         if  v.length() <= 1000:
 #             print("ID: ",v.get_id())
-            while v.get_node() != None:
+        count = 0
+        while v.get_node() != None:
+            if count < 1000:
 #                 print("ID: ",v.get_id())
 #                 if ranked[v.get_id()] not in ranked.keys():
                 temp_ranked[v.get_id()] = v.get_score()
-                v.next()
-        else:
-            count = 0
-            while count < 1000:
-                temp_ranked[v.get_id()] = v.get_score()
                 ++count
-                v.next()    
+                v.next()
+            else:
+                break
+#         else:
+#             count = 0
+#             while count < 1000:
+#                 temp_ranked[v.get_id()] = v.get_score()
+#                 ++count
+#                 v.next()    
     
 #     print("Ranked dict:",sorted(ranked.items()))
     
