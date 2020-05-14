@@ -45,7 +45,7 @@ def index_files(files:[str], names:['file']) -> None:
                 indexer[k].add(score, n, v[1])
             else:
                 indexer[k]= Postings(score, n, v[1])
-        if (n % 1000) == 0:
+        if (n % 100) == 0:
             print(n)
             
         if count > 5000:
@@ -53,7 +53,7 @@ def index_files(files:[str], names:['file']) -> None:
             num += 1
             count= 0
             indexer= dict()
-            print(num)
+            print("Saving File", num)
             
         #if n > 29:
         #    break
@@ -99,7 +99,6 @@ def priority_terms(file:str) -> {str:int}:
                 sentence = boldedterm.get_text()
                 for word in sentence.split(" "):
                     if word is not None:
-                        word= word.lower()
                         if word in priority:
                             priority[word] += 5
                         else:
@@ -109,7 +108,6 @@ def priority_terms(file:str) -> {str:int}:
             for header in headers:
                 sentence = header.get_text()
                 for word in sentence.split(" "):
-                    word= word.lower()
                     if word is not None:
                         if word in priority:
                             priority[word] += 5
@@ -196,6 +194,8 @@ def parse_line(open_file: 'file_object') -> ['token', 'Postings']:
     so that it adds to the beginning of the LL."""
     for line in open_file:
         line= line.split("\t")
+        post= add_posting(line)
+        """
         line[2]= [i.strip() for i in line[2].split("->") if len(i) > 1]
         last= eval(line[2][-1])
         post= Postings(last[0], last[1], last[2])
@@ -203,8 +203,20 @@ def parse_line(open_file: 'file_object') -> ['token', 'Postings']:
             for i in range(-2, -len(line[2]) - 1, -1):
                 p= eval(line[2][i])
                 post.add(p[0], p[1], p[2])
+        """
         yield line[0].lower(), post
     yield None
+
+
+def add_posting(line:[str]) -> "Postings":
+    line[2]= [i.strip() for i in line[2].split("->") if len(i) > 1]
+    last= eval(line[2][-1])
+    post= Postings(last[0], last[1], last[2])
+    if len(line[2]) > 1:
+        for i in range(-2, -len(line[2]) - 1, -1):
+            p= eval(line[2][i])
+            post.add(p[0], p[1], p[2])
+    return post
 
 
 def starting_lines(files:['generator']) -> ['postings']:
@@ -349,10 +361,14 @@ def seek() -> None:
 
 
 if __name__ == '__main__':
+    start= time.time()
     #json_files, names = file_paths()
     #index_files(json_files, names)
-    #sort_indexer()
-    seek()
+    sort_indexer()
+    #seek()
+    end= time.time()
+    print(end - start)
+    pass
 
 
 
