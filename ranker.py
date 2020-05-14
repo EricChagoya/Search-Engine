@@ -1,7 +1,11 @@
 from LL import Postings
 from builtins import str
+from pydoc import doc
+from _operator import index
+from cmath import log
+from math import log10
 #1)Isolate each query term from the user\'s input.
-#2)Check if each query term is in the indexer (dictionary)
+#2)Check if each query term is in the tokenizer (dictionary)
 #3)Read their postings/nodes.
 #4)Compare with terms' positions.
 #5)If positions differ by 1, this is important.
@@ -102,18 +106,38 @@ def query_match(index_file, phrase, ID):
     #         print(inspected_words)
         #end word-by-word process-------------------------------------------------------------
     elif len(queries) == 1 and (queries[0] in index_file):
-        score += 10
+        score += 5
     return score
 
+def tf_idf (index_file: dict, weighted_tf: int, word: str) -> int:
+    '''gives term freq weighting * inverse doc freq weighting, 
+    should only work for queries 2-terms and longer'''
+    doc_freq = 0
+#     print("index_file keys: ", index_file.keys())
+    
+    if word in index_file:
+        doc_freq = index_file[word].length()
+#         print("doc_freq: ", doc_freq)
+#     print("index_file[word] score: ", index_file[word].get_score())
+    tf = index_file[word].get_score() * weighted_tf
+    print("tf: ", tf)
+    idf = 55392/doc_freq
+    print("idf: ", idf)
+    new_score = 1+ log10(tf) * log10(idf)
+    return new_score
 
 
 if __name__ == '__main__':
     acm = Postings(1,10,[7])
+#     acm2 = Postings(2, 1000, [22, 44]) 
+    acm.add(2, 1000, [22, 44])
     test_output = {"ACM": acm}
     
-    score = query_match(test_output, "MAD", 10)
-    print("Sample phrase: MAD")
-    print("Expected score: 0 | Actual score:", score, "\n")
+    score = query_match(test_output, "ACM", 10)
+    print("Sample phrase: ACM")
+    print("Expected score: 5 | Actual score:", score, "\n")
+    tfidf = tf_idf(test_output, score, "ACM")
+    print("tf-idf : ", tfidf, "\n")
     
     #to
     post1 = Postings(1, 1, [41])
