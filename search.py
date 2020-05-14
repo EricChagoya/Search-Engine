@@ -18,6 +18,8 @@ def searching(t:['tinker_objects???']) -> None:
         #query_terms= "4th apple horse michael machine".split() # valid_query() #Ask user until valid 
         # Need to apply the same tokenizer rules to the query terms
         start= time.time()
+#         print("ids: ", ids)
+#         print()
         ranked, partial_index= search(query_terms, partial_index,
                                       seeker, num_display)
         ranked_order= decode_ids(ranked, ids, num_display)
@@ -41,12 +43,36 @@ def search(query_terms:[str], partial_index:{'token':'Posting'}, seeker: {str:in
     update_partial_index(query_terms, partial_index, seeker)
     for k, v in partial_index.items():
         print('Term:', k)
-        #v.print_nodes()
+        v.print_nodes()
         print()
     
-    ranked= dict() # Do rankings here
+    temp_ranked= dict() # Do rankings here
     # Don't change partial index
     # ranked= {id of the website:score}
+    
+    for k, v in partial_index.items():
+        if  v.length() <= 1000:
+#             print("ID: ",v.get_id())
+            while v.get_node() != None:
+#                 print("ID: ",v.get_id())
+#                 if ranked[v.get_id()] not in ranked.keys():
+                temp_ranked[v.get_id()] = v.get_score()
+                v.next()
+        else:
+            count = 0
+            while count < 1000:
+                temp_ranked[v.get_id()] = v.get_score()
+                ++count
+                v.next()    
+    
+#     print("Ranked dict:",sorted(ranked.items()))
+    
+    sorted_ranked = sorted(temp_ranked.items(), key= lambda x:x[1], reverse=True)
+    
+    ranked = dict()
+    for item in sorted_ranked:
+        ranked[item[0]] = item[1]
+    print("Ranked: ", ranked)
 
     for ids in ranked.keys():
         position_score= 1 # ranker.query_match(partial_index, query_terms, id, max_look)
@@ -140,9 +166,10 @@ def get_ids() -> {int:str}:
 def decode_ids(ranked:{int:int}, ids:{int:str}, max_urls:int) -> [str]:
     """Returns a list of urls sorted by the highest ranking first"""
     ranked_order= []
-    count = 0	# Maybe enumerate
+    count = 0    # Maybe enumerate
     for k, v in sorted(ranked.items(), key= (lambda x:x[1]) ):
-        ranked_order.append(ids[k])
+#         print(k,v)
+        ranked_order.append(ids[str(k)])
         count+= 1
         if count >= max_urls:
             return ranked_order
