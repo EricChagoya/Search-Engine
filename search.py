@@ -4,6 +4,7 @@
 import time
 from LL import Postings
 import Indexer
+from math import log10
 
 
 def searching(t:['tinker_objects???']) -> None:
@@ -58,7 +59,9 @@ def search(query_terms:[str], partial_index:{'token':'Posting'}, seeker: {str:in
             if count < 1000:
 #                 print("ID: ",v.get_id())
 #                 if ranked[v.get_id()] not in ranked.keys():
-                temp_ranked[v.get_id()] = v.get_score()
+                tfidf = tf_idf(partial_index, k)
+#                 print("tfidf:",tfidf)
+                temp_ranked[v.get_id()] = tfidf
                 ++count
                 v.next()
             else:
@@ -85,7 +88,22 @@ def search(query_terms:[str], partial_index:{'token':'Posting'}, seeker: {str:in
     
     return ranked, partial_index
 
-
+def tf_idf (index_file: dict, word: str) -> float:
+    '''gives term freq weighting * inverse doc freq weighting, 
+    should only work for queries 2-terms and longer'''
+    doc_freq = 0
+#     print("index_file keys: ", index_file.keys())
+     
+    if word in index_file:
+        doc_freq = index_file[word].length()
+#         print("doc_freq: ", doc_freq)
+#     print("index_file[word] score: ", index_file[word].get_score())
+    tf = index_file[word].get_score() 
+#     print("tf: ", tf)
+    idf = 55392/doc_freq
+#     print("idf: ", idf)
+    new_score = 1+ log10(tf) * log10(idf)
+    return new_score
 
 
 
