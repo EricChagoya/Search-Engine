@@ -1,3 +1,11 @@
+
+
+import subprocess, sys
+from fileinput import filename
+def install(package):
+    subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+ 
+install("bs4")
 import os
 import json
 import re
@@ -7,7 +15,28 @@ from nltk.stem import WordNetLemmatizer, PorterStemmer
 import subprocess
 import sys
 import time
+import urllib.parse
 
+# def anchorwords(json_file):
+# 
+#     with open(json_file) as jsonfile:
+#         url = json.load(jsonfile)['url']
+# 
+#         bits = urllib.parse.urlparse(url) #this is a 6-tuple
+# 
+#         anchors = re.finditer("\w*", bits[2])
+# 
+#         anchors_for_url = {}
+# 
+#         for word in anchors:
+#             if len(word.group().lower()) > 0:
+#                 anchors_for_url[word.group().lower()] = 1
+# 
+#         for word in anchors:
+#             if word.group().lower() in anchors_for_url:
+#                 anchors_for_url[word.group().lower()] += 1
+# 
+#     return anchors_for_url
 
 def file_paths() -> ['dir'] and ['files']:
     """Cycle through content in .json files.  Read the contents; get the tokens
@@ -17,8 +46,8 @@ def file_paths() -> ['dir'] and ['files']:
     root_directory = os.path.dirname(__file__)
     for folders, _, files in os.walk(root_directory, topdown= False):
         for jsons in files:
-            #if ("ANALYST" in folders):
-            if ("DEV" in folders): #or ("ANALYST" in folders)
+            if ("ANALYST" in folders):
+#             if ("DEV" in folders): #or ("ANALYST" in folders)
                 directories.append(os.path.join(folders, jsons))
                 names.append(str(jsons))
     return directories, names
@@ -60,7 +89,9 @@ def index_files(files:[str], names:['file']) -> None:
         count+= 1
     write_indexer_file(indexer, ids, f"output_indexer{num}.txt")
     write_ids_file(ids)
-    
+    print("Writing document frequencies now...")
+    write_docfreq_file(indexer)
+   
 
 
 def reader(file:str) -> {'token':['count', ['position'] ] } and 'url':
@@ -122,24 +153,25 @@ def tokenizer(token:str) -> str:
         will include stemming, removing apostrophes, 
         dealing with hyphens, IP addresses, websites, emails, phrases, special characters
     '''
+    refined_token = token.encode().decode('ascii','replace').replace(u'\ufffd','-')
+    lower_token = refined_token.lower()
     
     email_pat = re.compile(r'^(?:(\w{0,64})(@)(\w{1,251}).(com))$')
     ip_pat = re.compile(r'^(?:(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3}))$')
     url_pat = re.compile(r'(?:(https|http)?(://)?(www.)?(\w{1,63})(\.\w*)*(\.(?:com|edu|gov|org|net|mil|int|\w{2,3}))(\\w+)?)')
-    if email_pat.match(token) != None:
-        return token
-    elif ip_pat.match(token) != None:
-        return token
-    elif url_pat.match(token) != None:
-        return token
+    if email_pat.match(lower_token) != None:
+        return lower_token
+    elif ip_pat.match(lower_token) != None:
+        return lower_token
+    elif url_pat.match(lower_token) != None:
+        return lower_token
     
-    refined_token = token.encode().decode('ascii','replace').replace(u'\ufffd','-')
     
     stemmer = PorterStemmer()
     lemmatizer =  WordNetLemmatizer()
     
-    stemmed_token = stemmer.stem(refined_token)
-    lem_token = lemmatizer.lemmatize(refined_token) 
+    stemmed_token = stemmer.stem(lower_token)
+    lem_token = lemmatizer.lemmatize(lower_token) 
     if lem_token.endswith('e'):
         itemized_token = re.split('\W', lem_token.rstrip()) 
     else:
@@ -150,7 +182,7 @@ def tokenizer(token:str) -> str:
         mod_token += i
 
     if len(mod_token) >= 1:
-        return mod_token.lower()
+        return mod_token
 
 
 def write_indexer_file(index: {'token':'Postings'}, ids: {'str'}, filename:str) -> None:
@@ -170,7 +202,26 @@ def write_ids_file(ids:{int: str}) -> None:
         for k, v in sorted(ids.items()):
             f.write(str(k) + "\t" + v + "\n")
 
-
+def write_docfreq_file(index: {'token': 'Postings'}) -> None:
+    filename = 'doc_frequencies.txt'
+    print('working')
+    with open(filename, 'w', encoding = 'utf8') as f:
+        for k,v in sorted(index.items()):
+            f.write(f'{k}    {v.length()} \n')
+    
+def load_docfreq_file(filename: str) -> {str:int}:
+    freq_doc = open(filename, 'r',encoding = 'utf8')
+    freq_dict = dict()
+    for line in freq_doc:
+        itemized_line = line.split()
+        token = str(itemized_line[0])
+        docfreq = itemized_line[1]
+        freq_dict[token] = docfreq
+    print(f"Token 1: {freq_dict['0']}")
+    print("Returning document frequencies...")
+    return freq_dict
+        
+        
 
 def sort_indexer() -> None:
     """Deal with file managment"""
@@ -186,6 +237,8 @@ def sort_indexer() -> None:
         write_files= [w0, w1, w2, w3, w4]
         generator_files= [parse_line(f) for f in files]
         alphabetical_indexer(generator_files, write_files)
+        load_docfreq_file("doc_frequencies.txt")
+        
 
 
 
@@ -362,10 +415,10 @@ def seek() -> None:
 
 if __name__ == '__main__':
     start= time.time()
-    #json_files, names = file_paths()
-    #index_files(json_files, names)
+    json_files, names = file_paths()
+    index_files(json_files, names)
     sort_indexer()
-    #seek()
+    seek()
     end= time.time()
     print(end - start)
     pass
