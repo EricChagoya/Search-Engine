@@ -2,9 +2,7 @@
 
 Indexer.py takes all the json files from a certain directory and indexes them after n websites visited.
 It sorts those n websites and saves them into partial indexes. 
-
 The output is output_indexerN.txt, with N being how many files it has saved. 
-
 The output ids_identifier.txt stores the ids to their websites.
 
 
