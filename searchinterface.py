@@ -20,8 +20,8 @@ def valid_query(user_input):
     return words
 
 def interface(partial_index, ids, seeker, num_display):
-    global current_results
-    current_results = 0
+    global results_index
+    results_index = 0
 
     root = tkinter.Tk()
 
@@ -35,22 +35,6 @@ def interface(partial_index, ids, seeker, num_display):
     result_widget = tkinter.Label(root,text = "", font = ("Courier New", 22))
     drawingspace.create_window(510, 200, window=user_input)
 
-    def page_display_sites(website_list, order):
-        if order < 0:
-            return
-
-        result1.config(text = website_list[order])
-        drawingspace.create_window(510, 350, window=result1)
-        result2.config(text = website_list[order+1])
-        drawingspace.create_window(510, 400, window=result2)
-        result3.config(text = website_list[order+2])
-        drawingspace.create_window(510, 450, window=result3)
-        result4.config(text = website_list[order+3])
-        drawingspace.create_window(510, 500, window=result4)
-        result5.config(text = website_list[order+4])
-        drawingspace.create_window(510, 550, window=result5)
-        return
-
     def display_results():
         search_queries = valid_query(user_input) #list
 
@@ -61,37 +45,66 @@ def interface(partial_index, ids, seeker, num_display):
         proper_query = " "
         proper_query = proper_query.join(search_queries)
         result_widget.config(text = "Searching for " + proper_query)
-        drawingspace.create_window(520, 399, window = result_widget)
+        drawingspace.create_window(520, 300, window = result_widget)
 
         #Let's get the websites we should display now
         ranked = search.searching(partial_index, ids, seeker, num_display, search_queries)
         #PLAN A of displaying websites in the list-----------------------------------------
-        result1 = tkinter.Label(root, text = "", font = ("Courier New", 22))
-        result2 = tkinter.Label(root, text = "", font = ("Courier New", 22))
-        result3 = tkinter.Label(root, text = "", font = ("Courier New", 22))
-        result4 = tkinter.Label(root, text = "", font = ("Courier New", 22))
-        result5 = tkinter.Label(root, text = "", font = ("Courier New", 22))
+
+        result1 = tkinter.Label(root, text = "", font = ("Courier New", 12))
+        result2 = tkinter.Label(root, text = "", font = ("Courier New", 12))
+        result3 = tkinter.Label(root, text = "", font = ("Courier New", 12))
+        result4 = tkinter.Label(root, text = "", font = ("Courier New", 12))
+        result5 = tkinter.Label(root, text = "", font = ("Courier New", 12))
+
+        def give_urls(website_list, order, r1, r2, r3, r4, r5):
+
+            try:
+                r1.config(text = website_list[order])
+                drawingspace.create_window(520, 450, window = r1)
+            except:
+                return
+            try:
+                r2.config(text = website_list[order+1])
+                drawingspace.create_window(520, 500, window = r2)
+            except:
+                return
+            try:
+                r3.config(text = website_list[order+2])
+                drawingspace.create_window(520, 550, window = r3)
+            except:
+                return
+            try:
+                r4.config(text = website_list[order+3])
+                drawingspace.create_window(520, 600, window = r4)
+            except:
+                return
+            try:
+                r5.config(text = website_list[order+4])
+                drawingspace.create_window(520, 650, window = r5)
+            except:
+                return
+
+            return
 
         def order_NEXT():
-            global current_results
-            current_results += 5
-            print(current_results)
-            page_display_sites(ranked, current_results)
-            return
+            global results_index
+            results_index += 5
+            give_urls(ranked, results_index, result1, result2, result3, result4, result5)
 
         def order_PREV():
-            global current_results
-            if current_results <= 0:
-                return
-            current_results -= 5
-            print(current_results)
-            page_display_sites(ranked, current_results)
-            return
+            global results_index
+            results_index -= 5
+            print(results_index)
+            if results_index < 0:
+                results_index = 0
+            give_urls(ranked, results_index, result1, result2, result3, result4, result5)
 
-        next_button = tkinter.Button(text = "Next", command = order_NEXT, font = ("Comic Sans MS", 16, "bold"))
-        back_button = tkinter.Button(text = "Prev", command = order_PREV, font = ("Comic Sans MS", 16, "bold"))
-        drawingspace.create_window(570, 800, window=next_button)
-        drawingspace.create_window(480, 800, window=back_button)
+        order_NEXT()
+        next_button = tkinter.Button(text = "->", command = order_NEXT, font = ("Comic Sans MS", 16, "bold"))
+        drawingspace.create_window(560, 800, window=next_button)
+        back_button = tkinter.Button(text = "<-", command = order_PREV, font = ("Comic Sans MS", 16, "bold"))
+        drawingspace.create_window(470, 800, window=back_button)
         #end PLAN A------------------------------------------------------------------------
 
 
@@ -163,3 +176,18 @@ if __name__ == '__main__':
 #get the fragments
 #return 1 result per .json
 #return: dictionary = {key: words that are split | frequency: amount of times that the word appears in the URL}
+
+#we only have 4 terms to look up
+#this whole process will take a ton of hours to complete
+#multiple search query example: meachine learning
+#1) look up "machine"
+#2) copy and paste the first 3 nodes into a .txt file
+#combine scores if both terms are in the same ID
+#3) look up "learning"
+#4) copy and past the first 3 nodes into a .txt file
+#5) do this for ALL output_indexer.txt
+#6) add up ALL the scores if "machine" and "learning" are in the same doc ID
+#7) We need five txt documents
+
+#document frequency = number of documents which a token appears.
+#ex: if you see "zine 2", the word "zine" appears in 2 documents
