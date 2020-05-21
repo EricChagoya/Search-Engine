@@ -92,11 +92,11 @@ def index_files(files:[str], names:['file']) -> None:
         if duplicate.check_duplicates(indexer, url, tokens) == False:
             for k, v in tokens.items():
                 #score= tf_idf(tokens, k)
-                print(k,type(k))
-                score= tf_idf(v[0], int(doc_freq[k]), k)     # Right now score will be frequency
+                print("tokens.items():",k,v)
+                print("doc_freq:",k,doc_freq[k])
+                score= tf_idf(v[0], int(doc_freq[k]))     # score using tf.idf
                 if k in priority:
                     score += priority[k]
-                    
                 if k in indexer:
                     indexer[k].add(score, n, v[1])
                 else:
@@ -118,7 +118,7 @@ def index_files(files:[str], names:['file']) -> None:
     write_indexer_file(indexer, ids, f"output_indexer{num}.txt")
     write_ids_file(ids)
  
-def tf_idf (tf: int, doc_freq: int, word: str) -> float:
+def tf_idf (tf: int, doc_freq: int) -> float:
     '''gives term freq weighting * inverse doc freq weighting, 
     should only work for queries 2-terms and longer'''
 
