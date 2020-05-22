@@ -38,7 +38,7 @@ def count_tokens(tokens: {str:int}) -> int:
 
 def check_duplicates(traveler: {str:{str:int}}, url: str, url_tokens:{str:int}) -> bool:
     """If duplicate, return True."""
-    threshold= 0.5
+    threshold= 0.95
     similar_urls= check_similar_url(traveler, url)
     
     for similar_url in similar_urls:
@@ -57,10 +57,9 @@ def check_duplicates(traveler: {str:{str:int}}, url: str, url_tokens:{str:int}) 
                 same_word.add(k)
             else:
                 different_word= v[0]
-
         
         total_words= similar_word + different_word
-        if (similar_word/total_words) >= threshold:
+        if (total_words == 0) or (similar_word/total_words) >= threshold:
             return True
     
     return False
