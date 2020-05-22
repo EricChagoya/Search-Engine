@@ -20,7 +20,7 @@ def compare_two_urls(link1:str, link2:str) -> bool:
     else:
         link1 += (total * " ")
             
-    threshold = round(len(link1) * 0.8)
+    threshold = round(len(link1) * 0.9)
     similar_characters = sum([1 for a in range(0, len(link1)) if (link1[a] == link2[a])])
         
     if similar_characters >= threshold:
@@ -38,21 +38,18 @@ def count_tokens(tokens: {str:int}) -> int:
 
 def check_duplicates(traveler: {str:{str:int}}, url: str, url_tokens:{str:int}) -> bool:
     """If duplicate, return True."""
-    threshold= 0.95
+    threshold= 0.99
     similar_urls= check_similar_url(traveler, url)
     
     for similar_url in similar_urls:
         same_word= set()
         similar_word= 0
         different_word= 0
-        
+
         for k, v in traveler[similar_url].items():
             if k in url_tokens:
                 value= url_tokens[k]
-#                 print("url_tokens:",k,value[0])
-#                 print("v:",k,v[0])
                 similar_word+= min(v[0], value[0])
-#                 print("abs(v[0] - value[0]):",abs(v[0] - value[0]))
                 different_word+= abs(v[0] - value[0])
                 same_word.add(k)
             else:
