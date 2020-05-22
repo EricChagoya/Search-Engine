@@ -145,6 +145,7 @@ def interface(partial_index, ids, seeker, num_display):
                 results_index = 0
             give_urls(ranked, result1, result2, result3, result4, result5)
 
+        order_NEXT()
         next_button = tkinter.Button(text = "->", command = order_NEXT, font = ("Comic Sans MS", 16, "bold"))
         drawingspace.create_window(560, 800, window=next_button)
         back_button = tkinter.Button(text = "<-", command = order_PREV, font = ("Comic Sans MS", 16, "bold"))
