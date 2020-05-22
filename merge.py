@@ -69,13 +69,13 @@ def merging(r_files: ['generator'], w_files:['file_object']) -> None:
     letters= ["0-9", "a-f", "g-m", "n-s", "t-z", "{"]
     buffer_writing= []
     count= 0
-    n= 0
+    n= 0 
     while len(r_files) > 0:
         word, similar_index= same_word([file[0][0] for file in tokens_post])
         if word == "{":
             break
         
-        if len(similar_index) <= 1:
+        if 1 >= len(similar_index):
             post_line= single_match(tokens_post, r_files, similar_index[0])
         else:
             post_line= multiple_match(tokens_post, r_files, similar_index)
@@ -89,10 +89,10 @@ def merging(r_files: ['generator'], w_files:['file_object']) -> None:
         n+= 1
         
         if count > 1000:
-            print(n)    # Checks merging progress
             write_postings(buffer_writing, w_files[0])
-            count= 0
             buffer_writing= []
+            count= 0
+            print(n)    # Checks merging progress
     write_postings(buffer_writing, w_files[0])
 
 
