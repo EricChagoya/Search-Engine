@@ -49,11 +49,14 @@ def check_duplicates(traveler: {str:{str:int}}, url: str, url_tokens:{str:int}) 
         for k, v in traveler[similar_url].items():
             if k in url_tokens:
                 value= url_tokens[k]
-                similar_word+= min(v, value)
-                different_word+= abs(v - value)
+#                 print("url_tokens:",k,value[0])
+#                 print("v:",k,v[0])
+                similar_word+= min(v[0], value[0])
+#                 print("abs(v[0] - value[0]):",abs(v[0] - value[0]))
+                different_word+= abs(v[0] - value[0])
                 same_word.add(k)
             else:
-                different_word= v
+                different_word= v[0]
 
         
         total_words= similar_word + different_word
