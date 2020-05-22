@@ -5,7 +5,10 @@ import search
 import Indexer
 
 def valid_query(user_input):
-    #I tried to do some ICS 33-level stuff but there might be a test case that breaks this
+    '''Checks to see whether the query is:
+    1) English/Roman characters
+    2) Has no extra whitespace
+    3) Not an empty input'''
     words = [term for term in user_input.get().split() if len(term) > 0]
 
     if len(words) < 1:
@@ -20,6 +23,8 @@ def valid_query(user_input):
     return words
 
 def interface(partial_index, ids, seeker, num_display):
+    '''Main function for the VISUALS of our search engine; most (or all) of the visuals in our
+    program is defined by this function'''
     global results_index
     results_index = 0
 
@@ -36,6 +41,7 @@ def interface(partial_index, ids, seeker, num_display):
     drawingspace.create_window(510, 200, window=user_input)
 
     def display_results():
+        '''This is a process that will display search results once the user has entered a query'''
         search_queries = valid_query(user_input) #list
 
         if search_queries == False:
@@ -49,6 +55,7 @@ def interface(partial_index, ids, seeker, num_display):
 
         #Let's get the websites we should display now
         ranked = search.searching(partial_index, ids, seeker, num_display, search_queries)
+        print(len(ranked))
         #PLAN A of displaying websites in the list-----------------------------------------
 
         result1 = tkinter.Label(root, text = "", font = ("Courier New", 12))
@@ -57,66 +64,93 @@ def interface(partial_index, ids, seeker, num_display):
         result4 = tkinter.Label(root, text = "", font = ("Courier New", 12))
         result5 = tkinter.Label(root, text = "", font = ("Courier New", 12))
 
-        def give_urls(website_list, order, r1, r2, r3, r4, r5):
+        def give_urls(website_list, r1, r2, r3, r4, r5):
+            '''Displays (with TKinter) five search results at a time'''
+            global results_index
 
             try:
-                r1.config(text = website_list[order])
+                r1.config(text = website_list[results_index])
                 drawingspace.create_window(520, 450, window = r1)
             except:
+                r1.config(text = "*************End of results*************")
+                drawingspace.create_window(520, 450, window = r1)
+                r2.config(text = "")
+                drawingspace.create_window(520, 500, window = r2)
+                r3.config(text = "")
+                drawingspace.create_window(520, 550, window = r3)
+                r4.config(text = "")
+                drawingspace.create_window(520, 600, window = r4)
+                r5.config(text = "")
+                drawingspace.create_window(520, 650, window = r5)
                 return
             try:
-                r2.config(text = website_list[order+1])
+                r2.config(text = website_list[results_index+1])
                 drawingspace.create_window(520, 500, window = r2)
             except:
+                r2.config(text = "*************End of results*************")
+                drawingspace.create_window(520, 500, window = r2)
+                r3.config(text = "")
+                drawingspace.create_window(520, 550, window = r3)
+                r4.config(text = "")
+                drawingspace.create_window(520, 600, window = r4)
+                r5.config(text = "")
+                drawingspace.create_window(520, 650, window = r5)
                 return
             try:
-                r3.config(text = website_list[order+2])
+                r3.config(text = website_list[results_index+2])
                 drawingspace.create_window(520, 550, window = r3)
             except:
+                r3.config(text = "*************End of results*************")
+                drawingspace.create_window(520, 550, window = r3)
+                r4.config(text = "")
+                drawingspace.create_window(520, 600, window = r4)
+                r5.config(text = "")
+                drawingspace.create_window(520, 650, window = r5)
                 return
             try:
-                r4.config(text = website_list[order+3])
+                r4.config(text = website_list[results_index+3])
                 drawingspace.create_window(520, 600, window = r4)
             except:
+                r4.config(text = "*************End of results*************")
+                drawingspace.create_window(520, 600, window = r4)
+                r5.config(text = "")
+                drawingspace.create_window(520, 650, window = r5)
                 return
             try:
-                r5.config(text = website_list[order+4])
+                r5.config(text = website_list[results_index+4])
                 drawingspace.create_window(520, 650, window = r5)
             except:
+                r5.config(text = "*************End of results*************")
+                drawingspace.create_window(520, 650, window = r5)
                 return
 
             return
 
         def order_NEXT():
+            '''By clicking the next_button, the user will see the next 5 results'''
             global results_index
             results_index += 5
-            give_urls(ranked, results_index, result1, result2, result3, result4, result5)
+
+            while results_index > len(ranked) - 1 or results_index % 5 != 0:
+                    results_index -= 1
+
+            give_urls(ranked, result1, result2, result3, result4, result5)
 
         def order_PREV():
+            '''By clicking the back_button, the user will see the previous 5 results'''
             global results_index
             results_index -= 5
             print(results_index)
             if results_index < 0:
                 results_index = 0
-            give_urls(ranked, results_index, result1, result2, result3, result4, result5)
+            give_urls(ranked, result1, result2, result3, result4, result5)
 
         order_NEXT()
         next_button = tkinter.Button(text = "->", command = order_NEXT, font = ("Comic Sans MS", 16, "bold"))
         drawingspace.create_window(560, 800, window=next_button)
         back_button = tkinter.Button(text = "<-", command = order_PREV, font = ("Comic Sans MS", 16, "bold"))
         drawingspace.create_window(470, 800, window=back_button)
-        #end PLAN A------------------------------------------------------------------------
 
-
-        #PLAN B of displaying websites in the list-----------------------------------------
-        #vertical_coordinate = 349
-        #for website in ranked:
-            #result = tkinter.Label(root, text = str(website), font = ("Courier New", 22))
-            #drawingspace.create_window(520, vertical_coordinate, window = result)
-            #vertical_coordinate += 50
-        #end PLAN B------------------------------------------------------------------------
-
-        #partial_index["c"] = 3
         return
 
     search_button = tkinter.Button(text = "Search", command = display_results, font = ("Comic Sans MS", 16, "bold"))
