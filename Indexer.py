@@ -102,9 +102,9 @@ def index_files(files:[str], names:['file']) -> None:
 #                 score = v[0]
                 if k in priority:
                     score += priority[k]
-                elif k in anchor:
+                if k in anchor:
                     score += anchor[k]
-                elif k in indexer:
+                if k in indexer:
                     indexer[k].add(score, n, v[1])
                 else:
                     indexer[k]= Postings(score, n, v[1])
