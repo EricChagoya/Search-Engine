@@ -79,6 +79,7 @@ def index_files(files:[str], names:['file']) -> None:
     """It indexes after a certain number of websites iterated and then
     dumps that information into a textfile"""
     indexer= dict()
+    traveler = dict()
     ids= dict()
     count= 0
     num= 0
@@ -89,12 +90,14 @@ def index_files(files:[str], names:['file']) -> None:
         tokens, url= reader(file)
         ids[n]= url
         priority= priority_terms(file)
-        if duplicate.check_duplicates(indexer, url, tokens) == False:
+        if duplicate.check_duplicates(traveler, url, tokens) == False:
+            traveler[url] = tokens
             for k, v in tokens.items():
                 #score= tf_idf(tokens, k)
-                print("tokens.items():",k,v)
-                print("doc_freq:",k,doc_freq[k])
+#                 print("tokens.items():",k,v)
+#                 print("doc_freq:",k,doc_freq[k])
                 score= tf_idf(v[0], int(doc_freq[k]))     # score using tf.idf
+#                 score = v[0]
                 if k in priority:
                     score += priority[k]
                 if k in indexer:
