@@ -31,6 +31,19 @@ def file_paths() -> ['dir'] and ['files']:
 #             if ("DEV" in folders): #or ("ANALYST" in folders)
                 directories.append(os.path.join(folders, jsons))
                 names.append(str(jsons))
+    
+    count= 0
+    for k in directories:
+        print(k)
+        if count > 5:
+            break
+        count += 1
+
+    for k in names:
+        print(k)
+        if count > 10:
+            break
+        count += 1
     return directories, names
 
 
@@ -52,7 +65,7 @@ def get_doc_freq(files:[str]) -> None:
                     t[k] += 1
                 else:
                     t[k] = 1
-        if n > 700:             # 700 for analyst, 15000 for developer
+        if n > 15000:             # 700 for analyst, 15000 for developer
             traveler= dict()
     print("Number of Unique Websites", n)
     write_docfreq_file(t)
@@ -76,6 +89,8 @@ def index_files(files:[str], names:['file']) -> None:
             priority= priority_terms(file)
             anchor = anchorwords(file)
             for k, v in tokens.items():
+#                 if k == "fabflix" or "fabfix":
+#                     print("Caught k:",k)
                 score= tf_idf(v[0], int(doc_freq[k]))     # score using tf.idf
                 if k in priority:
                     score += priority[k]
@@ -89,7 +104,7 @@ def index_files(files:[str], names:['file']) -> None:
         if (n % 100) == 0:
             print(n)
             
-        if count > 15000:       # 700 for analyst, 15000 for developer
+        if count > 5:       # 700 for analyst, 15000 for developer
             write_indexer_file(indexer, ids, f"output_indexer{num}.txt")
             num += 1
             count= 0
@@ -126,7 +141,7 @@ def tf_idf (tf: int, doc_freq: int) -> float:
     '''gives term freq weighting * inverse doc freq weighting, 
     should only work for queries 2-terms and longer'''
 
-    idf = 55392/doc_freq
+    idf = 12055/doc_freq
     new_score = 1+ log10(tf) * log10(idf)
     return new_score  
 
@@ -212,9 +227,9 @@ def tokenizer(token:str) -> str:
     lem_token = lemmatizer.lemmatize(lower_token) 
     
     if lem_token.endswith('e'):
-        itemized_token = re.split('\W', lem_token.rstrip()) 
+        itemized_token = re.split('[^a-zA-Z0-9]', lem_token.rstrip()) 
     else:
-        itemized_token = re.split('\W', stemmed_token.rstrip()) #https://stackoverflow.com/questions/24517722/how-to-stop-nltk-stemmer-from-removing-the-trailing-e
+        itemized_token = re.split('[^a-zA-Z0-9]', stemmed_token.rstrip()) #https://stackoverflow.com/questions/24517722/how-to-stop-nltk-stemmer-from-removing-the-trailing-e
     mod_token = ''
     for i in itemized_token:
         mod_token += i
@@ -265,11 +280,11 @@ def load_docfreq_file(filename: str) -> {str:int}:
 if __name__ == '__main__':
     start= time.time()
 
-    json_files, _ = file_paths()
-    get_doc_freq(json_files)
+#     json_files, _ = file_paths()
+#     get_doc_freq(json_files)
 
     
-    #json_files, names = file_paths()
-    #index_files(json_files, names)
+    json_files, names = file_paths()
+#     index_files(json_files, names)
     end= time.time()
     print("Time", (end - start)/60, "minutes")
