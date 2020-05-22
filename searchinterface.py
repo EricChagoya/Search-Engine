@@ -4,7 +4,8 @@ from LL import Postings
 import search
 import Indexer
 
-def valid_query(user_input):
+def valid_query(user_input, result_widget)->list or bool:
+    #Function arguments are: tkinter.Entry() object and tkinter.Label() object
     '''Checks to see whether the query is:
     1) English/Roman characters
     2) Has no extra whitespace
@@ -14,13 +15,21 @@ def valid_query(user_input):
     if len(words) < 1:
         return False
 
+    valid_words = []
     for term in words:
         try:
             term.encode("utf-8").decode("ascii")
+            valid_words.append(Indexer.tokenizer(term.strip()))
         except:
-            return False
-        words[words.index(term)] = Indexer.tokenizer(term.strip())
-    return words
+            print("There\'s an invalid query; skipping...")
+
+    if len(valid_words) > len(words) // 2:
+        proper_query = " "
+        proper_query = proper_query.join(valid_words)
+        result_widget.config(text = "Searching for " + proper_query)
+        return valid_words
+        
+    return False
 
 def interface(partial_index, ids, seeker, num_display):
     '''Main function for the VISUALS of our search engine; most (or all) of the visuals in our
@@ -40,30 +49,37 @@ def interface(partial_index, ids, seeker, num_display):
     result_widget = tkinter.Label(root,text = "", font = ("Courier New", 22))
     drawingspace.create_window(510, 200, window=user_input)
 
-    def display_results():
+    result1 = tkinter.Label(root, text = "", font = ("Courier New", 12))
+    result2 = tkinter.Label(root, text = "", font = ("Courier New", 12))
+    result3 = tkinter.Label(root, text = "", font = ("Courier New", 12))
+    result4 = tkinter.Label(root, text = "", font = ("Courier New", 12))
+    result5 = tkinter.Label(root, text = "", font = ("Courier New", 12))
+
+
+
+
+
+
+    #Define display_results() function•••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••
+
+    def display_results(search_queries: list)->None:
         '''This is a process that will display search results once the user has entered a query'''
-        search_queries = valid_query(user_input) #list
 
-        if search_queries == False:
-            result_widget.config(text = "Not a valid search query; try again.")
-            return
-
-        proper_query = " "
-        proper_query = proper_query.join(search_queries)
-        result_widget.config(text = "Searching for " + proper_query)
         drawingspace.create_window(520, 300, window = result_widget)
 
-        #Let's get the websites we should display now
-        ranked = search.searching(partial_index, ids, seeker, num_display, search_queries)
-        print(len(ranked))
-        #PLAN A of displaying websites in the list-----------------------------------------
+        ranked = search.searching(partial_index, ids, seeker, num_display, search_queries) #gets websites to display
 
-        result1 = tkinter.Label(root, text = "", font = ("Courier New", 12))
-        result2 = tkinter.Label(root, text = "", font = ("Courier New", 12))
-        result3 = tkinter.Label(root, text = "", font = ("Courier New", 12))
-        result4 = tkinter.Label(root, text = "", font = ("Courier New", 12))
-        result5 = tkinter.Label(root, text = "", font = ("Courier New", 12))
 
+
+
+
+        #Important: the list "ranked" is not used until the user presses the "->" or "<-" buttons
+
+
+
+
+
+        #Define give_urls() function•••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••
         def give_urls(website_list, r1, r2, r3, r4, r5):
             '''Displays (with TKinter) five search results at a time'''
             global results_index
@@ -125,8 +141,19 @@ def interface(partial_index, ids, seeker, num_display):
                 return
 
             return
+        #End give_urls() function••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••
 
-        def order_NEXT():
+
+        #These functions help display five results at a time•••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••
+        def order_FIRST()->None:
+            '''Display first results without clicking the "next_button" or "back_button"'''
+            global results_index
+            results_index = 0
+
+            give_urls(ranked, result1, result2, result3, result4, result5)
+
+
+        def order_NEXT()->None:
             '''By clicking the next_button, the user will see the next 5 results'''
             global results_index
             results_index += 5
@@ -136,7 +163,7 @@ def interface(partial_index, ids, seeker, num_display):
 
             give_urls(ranked, result1, result2, result3, result4, result5)
 
-        def order_PREV():
+        def order_PREV()->None:
             '''By clicking the back_button, the user will see the previous 5 results'''
             global results_index
             results_index -= 5
@@ -144,8 +171,9 @@ def interface(partial_index, ids, seeker, num_display):
             if results_index < 0:
                 results_index = 0
             give_urls(ranked, result1, result2, result3, result4, result5)
+        #End of functions that display five results at a time••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••
 
-        order_NEXT()
+        order_FIRST()
         next_button = tkinter.Button(text = "->", command = order_NEXT, font = ("Comic Sans MS", 16, "bold"))
         drawingspace.create_window(560, 800, window=next_button)
         back_button = tkinter.Button(text = "<-", command = order_PREV, font = ("Comic Sans MS", 16, "bold"))
@@ -153,7 +181,32 @@ def interface(partial_index, ids, seeker, num_display):
 
         return
 
-    search_button = tkinter.Button(text = "Search", command = display_results, font = ("Comic Sans MS", 16, "bold"))
+
+    #End display_results() function•••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••
+
+
+
+
+
+
+    def process_query()->None:
+        '''Validates a user's queries before attempting to activate the protocol to display the results'''
+
+        search_queries = valid_query(user_input, result_widget)
+        if search_queries != False:
+            display_results(search_queries)
+
+        else: #I know this "else" statement may be redundant, but a bug occurs without this statement for some reason
+        #this bug causes the program to present results in the list "ranked" despite an invalid input
+            result_widget.config(text = "Invalid query")
+            result1.config(text = "")
+            result2.config(text = "")
+            result3.config(text = "")
+            result4.config(text = "")
+            result5.config(text = "")
+
+
+    search_button = tkinter.Button(text = "Search", command = process_query, font = ("Comic Sans MS", 16, "bold"))
     drawingspace.create_window(510, 240, window=search_button)
 
     root.mainloop()
@@ -187,41 +240,3 @@ if __name__ == '__main__':
     a = interface(partial_index, ids, seeker, num_display)
     print(a)
     print("end")
-#extra notes:
-#logn
-#take note of idf score
-#n = total number of documents
-#dfi = amount of documents that contain a specific term
-
-#**********************Display - High priority:
-#ranked order: names of the websites list strings (already sorted)  
-#num_display = 5
-
-#**********************def valid_query() - High priority: It's... kinda done ;D
-#loop until user enters a valid query
-#English characters
-#rules: remove leading/trailing whitespaces
-#call tokenizer(string) -> returns one token at a time
-#return of strings = [] every index has its own word
-
-#Bonus: Index anchorwords for targeted pages.
-#given: Use the .json file
-#get the URL
-#get the fragments
-#return 1 result per .json
-#return: dictionary = {key: words that are split | frequency: amount of times that the word appears in the URL}
-
-#we only have 4 terms to look up
-#this whole process will take a ton of hours to complete
-#multiple search query example: meachine learning
-#1) look up "machine"
-#2) copy and paste the first 3 nodes into a .txt file
-#combine scores if both terms are in the same ID
-#3) look up "learning"
-#4) copy and past the first 3 nodes into a .txt file
-#5) do this for ALL output_indexer.txt
-#6) add up ALL the scores if "machine" and "learning" are in the same doc ID
-#7) We need five txt documents
-
-#document frequency = number of documents which a token appears.
-#ex: if you see "zine 2", the word "zine" appears in 2 documents
