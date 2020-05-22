@@ -1,44 +1,23 @@
 
 
-import subprocess, sys
-from fileinput import filename
-def install(package):
-    subprocess.check_call([sys.executable, "-m", "pip", "install", package])
- 
-install("bs4")
 import os
-import json
 import re
-from LL import Postings
-from bs4 import BeautifulSoup
-from nltk.stem import WordNetLemmatizer, PorterStemmer
-import subprocess
 import sys
+import json
 import time
+import subprocess
 import urllib.parse
 from math import log10
+from fileinput import filename
+
+from bs4 import BeautifulSoup
+from nltk.stem import WordNetLemmatizer, PorterStemmer
+
 import duplicate
- 
-def anchorwords(json_file):
- 
-    with open(json_file) as jsonfile:
-        url = json.load(jsonfile)['url']
- 
-        bits = urllib.parse.urlparse(url) #this is a 6-tuple
- 
-        anchors = re.finditer("\w*", bits[2])
- 
-        anchors_for_url = {}
- 
-        for word in anchors:
-            if len(word.group().lower()) > 0:
-                anchors_for_url[word.group().lower()] = 1
- 
-        for word in anchors:
-            if word.group().lower() in anchors_for_url:
-                anchors_for_url[word.group().lower()] += 1
- 
-    return anchors_for_url
+from LL import Postings
+
+
+
 
 def file_paths() -> ['dir'] and ['files']:
     """Cycle through content in .json files.  Read the contents; get the tokens
@@ -54,6 +33,7 @@ def file_paths() -> ['dir'] and ['files']:
                 names.append(str(jsons))
     return directories, names
 
+
 def get_doc_freq(files:[str]) -> None:
     """It gets the document frequencies for all tokens then
     dumps that information into a textfile"""
@@ -63,6 +43,8 @@ def get_doc_freq(files:[str]) -> None:
     for file in files:
         tokens, url= reader(file)
         if duplicate.check_duplicates(traveler, url, tokens) == False:
+            if n % 100 == 0:
+                print(n)
             n += 1
             traveler[url] = tokens
             for k in tokens.keys():
@@ -70,8 +52,9 @@ def get_doc_freq(files:[str]) -> None:
                     t[k] += 1
                 else:
                     t[k] = 1
-       
-    print(n)
+        if n > 700:             # 700 for analyst, 15000 for developer
+            traveler= dict()
+    print("Number of Unique Websites", n)
     write_docfreq_file(t)
 
 
@@ -79,7 +62,7 @@ def index_files(files:[str], names:['file']) -> None:
     """It indexes after a certain number of websites iterated and then
     dumps that information into a textfile"""
     indexer= dict()
-    traveler = dict()
+    traveler = dict()   # Used for text similarity
     ids= dict()
     count= 0
     num= 0
@@ -88,21 +71,17 @@ def index_files(files:[str], names:['file']) -> None:
     for n, file in enumerate(files):
         tokens, url= reader(file)
         ids[n]= url
-        
         if duplicate.check_duplicates(traveler, url, tokens) == False:
             traveler[url] = tokens
             priority= priority_terms(file)
             anchor = anchorwords(file)
             for k, v in tokens.items():
-                #score= tf_idf(tokens, k)
-#                 print("tokens.items():",k,v)
-#                 print("doc_freq:",k,doc_freq[k])
                 score= tf_idf(v[0], int(doc_freq[k]))     # score using tf.idf
-#                 score = v[0]
                 if k in priority:
                     score += priority[k]
                 if k in anchor:
                     score += anchor[k]
+                
                 if k in indexer:
                     indexer[k].add(score, n, v[1])
                 else:
@@ -110,28 +89,16 @@ def index_files(files:[str], names:['file']) -> None:
         if (n % 100) == 0:
             print(n)
             
-        if count > 15000:
+        if count > 15000:       # 700 for analyst, 15000 for developer
             write_indexer_file(indexer, ids, f"output_indexer{num}.txt")
-#             write_docfreq_file(indexer)
             num += 1
             count= 0
             indexer= dict()
+            traveler= dict()
             print("Saving File", num)
-            
-        #if n > 29:
-        #    break
         count+= 1
     write_indexer_file(indexer, ids, f"output_indexer{num}.txt")
     write_ids_file(ids)
- 
-def tf_idf (tf: int, doc_freq: int) -> float:
-    '''gives term freq weighting * inverse doc freq weighting, 
-    should only work for queries 2-terms and longer'''
-
-    idf = 55392/doc_freq
-#     print("idf: ", idf)
-    new_score = 1+ log10(tf) * log10(idf)
-    return new_score  
 
 
 def reader(file:str) -> {'token':['count', ['position'] ] } and 'url':
@@ -153,6 +120,32 @@ def reader(file:str) -> {'token':['count', ['position'] ] } and 'url':
                     tokens[token][1].append(count)
                 count += 1
     return tokens, url
+
+
+def tf_idf (tf: int, doc_freq: int) -> float:
+    '''gives term freq weighting * inverse doc freq weighting, 
+    should only work for queries 2-terms and longer'''
+
+    idf = 55392/doc_freq
+    new_score = 1+ log10(tf) * log10(idf)
+    return new_score  
+
+
+def anchorwords(json_file):
+    with open(json_file) as jsonfile:
+        url = json.load(jsonfile)['url'] 
+        bits = urllib.parse.urlparse(url) #this is a 6-tuple
+        anchors = re.finditer("\w*", bits[2])
+        anchors_for_url = {}
+ 
+        for word in anchors:
+            if len(word.group().lower()) > 0:
+                anchors_for_url[word.group().lower()] = 1
+ 
+        for word in anchors:
+            if word.group().lower() in anchors_for_url:
+                anchors_for_url[word.group().lower()] += 1
+    return anchors_for_url
 
 
 def priority_terms(file:str) -> {str:int}:
@@ -226,7 +219,7 @@ def tokenizer(token:str) -> str:
     for i in itemized_token:
         mod_token += i
 
-    if len(mod_token) >= 1:
+    if 1 <= len(mod_token):
         return mod_token
     
 
@@ -247,12 +240,14 @@ def write_ids_file(ids:{int: str}) -> None:
         for k, v in sorted(ids.items()):
             f.write(str(k) + "\t" + v + "\n")
 
+
 def write_docfreq_file(index: {'token': 'Postings'}) -> None:
     filename = 'doc_frequencies.txt'
     print('working')
     with open(filename, 'w', encoding = 'utf8') as f:
         for k,v in sorted(index.items()):
             f.write(f'{k}    {v} \n')
+
     
 def load_docfreq_file(filename: str) -> {str:int}:
     freq_doc = open(filename, 'r',encoding = 'utf8')
@@ -262,7 +257,6 @@ def load_docfreq_file(filename: str) -> {str:int}:
         token = str(itemized_line[0])
         docfreq = itemized_line[1]
         freq_dict[token] = docfreq
-#     print(f"Token 1: {freq_dict['0']}")
     print("Returning document frequencies...")
     return freq_dict
         
@@ -270,13 +264,12 @@ def load_docfreq_file(filename: str) -> {str:int}:
 
 if __name__ == '__main__':
     start= time.time()
-    json_files, names = file_paths()
+
+    json_files, _ = file_paths()
     get_doc_freq(json_files)
-    index_files(json_files, names)
-    end= time.time()
-    print(end - start)
-    pass
-
-
 
     
+    #json_files, names = file_paths()
+    #index_files(json_files, names)
+    end= time.time()
+    print("Time", (end - start)/60, "minutes")
