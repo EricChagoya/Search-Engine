@@ -83,7 +83,6 @@ def index_files(files:[str], names:['file']) -> None:
     ids= dict()
     count= 0
     num= 0
-    get_doc_freq(files)
     doc_freq = load_docfreq_file("doc_frequencies.txt")
 
     for n, file in enumerate(files):
@@ -272,6 +271,7 @@ def load_docfreq_file(filename: str) -> {str:int}:
 if __name__ == '__main__':
     start= time.time()
     json_files, names = file_paths()
+    get_doc_freq(json_files)
     index_files(json_files, names)
     end= time.time()
     print(end - start)
