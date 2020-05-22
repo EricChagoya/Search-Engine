@@ -18,27 +18,27 @@ import time
 import urllib.parse
 from math import log10
 import duplicate
-
-# def anchorwords(json_file):
-# 
-#     with open(json_file) as jsonfile:
-#         url = json.load(jsonfile)['url']
-# 
-#         bits = urllib.parse.urlparse(url) #this is a 6-tuple
-# 
-#         anchors = re.finditer("\w*", bits[2])
-# 
-#         anchors_for_url = {}
-# 
-#         for word in anchors:
-#             if len(word.group().lower()) > 0:
-#                 anchors_for_url[word.group().lower()] = 1
-# 
-#         for word in anchors:
-#             if word.group().lower() in anchors_for_url:
-#                 anchors_for_url[word.group().lower()] += 1
-# 
-#     return anchors_for_url
+ 
+def anchorwords(json_file):
+ 
+    with open(json_file) as jsonfile:
+        url = json.load(jsonfile)['url']
+ 
+        bits = urllib.parse.urlparse(url) #this is a 6-tuple
+ 
+        anchors = re.finditer("\w*", bits[2])
+ 
+        anchors_for_url = {}
+ 
+        for word in anchors:
+            if len(word.group().lower()) > 0:
+                anchors_for_url[word.group().lower()] = 1
+ 
+        for word in anchors:
+            if word.group().lower() in anchors_for_url:
+                anchors_for_url[word.group().lower()] += 1
+ 
+    return anchors_for_url
 
 def file_paths() -> ['dir'] and ['files']:
     """Cycle through content in .json files.  Read the contents; get the tokens
@@ -89,9 +89,11 @@ def index_files(files:[str], names:['file']) -> None:
     for n, file in enumerate(files):
         tokens, url= reader(file)
         ids[n]= url
-        priority= priority_terms(file)
+        
         if duplicate.check_duplicates(traveler, url, tokens) == False:
             traveler[url] = tokens
+            priority= priority_terms(file)
+            anchor = anchorwords(file)
             for k, v in tokens.items():
                 #score= tf_idf(tokens, k)
 #                 print("tokens.items():",k,v)
@@ -100,7 +102,9 @@ def index_files(files:[str], names:['file']) -> None:
 #                 score = v[0]
                 if k in priority:
                     score += priority[k]
-                if k in indexer:
+                elif k in anchor:
+                    score += anchor[k]
+                elif k in indexer:
                     indexer[k].add(score, n, v[1])
                 else:
                     indexer[k]= Postings(score, n, v[1])
