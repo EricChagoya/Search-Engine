@@ -62,8 +62,8 @@ def interface(partial_index: {str:'Postings'}, ids: {int:str}, seeker: {'letter'
         start= time.time()
         ranked = search.searching(partial_index, ids, seeker, num_display, search_queries, files) #gets websites to display
         end= time.time()
-        timer= end- start
-        print(end - start, "seconds")
+        timer = end - start
+
 
         #Important: the list "ranked" is not used until the user presses the "->" or "<-" buttons
 
@@ -164,6 +164,9 @@ def interface(partial_index: {str:'Postings'}, ids: {int:str}, seeker: {'letter'
         back_button = tkinter.Button(text = "<-", command = order_PREV, font = ("Comic Sans MS", 16, "bold"))
         drawingspace.create_window(470, 800, window=back_button)
 
+        timerlabel = tkinter.Label(root, text = "Time: " + str(timer), font = ("Courier New", 16, "bold"))
+        drawingspace.create_window(510, 850, window=timerlabel)
+
         return
     #End display_results() function•••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••
 
@@ -182,7 +185,6 @@ def interface(partial_index: {str:'Postings'}, ids: {int:str}, seeker: {'letter'
             result3.config(text = "")
             result4.config(text = "")
             result5.config(text = "")
-
 
     search_button = tkinter.Button(text = "Search", command = process_query, font = ("Comic Sans MS", 16, "bold"))
     drawingspace.create_window(510, 240, window=search_button)
