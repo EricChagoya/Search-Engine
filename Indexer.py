@@ -1,5 +1,4 @@
-
-
+import gc
 import os
 import re
 import sys
@@ -26,7 +25,7 @@ def file_paths() -> ['dir'] and ['files']:
     root_directory = os.path.dirname(__file__)
     for folders, _, files in os.walk(root_directory, topdown= False):
         for jsons in files:
-            if ("ANALYST" in folders):
+            if ("DEV" in folders):
 #             if ("DEV" in folders): #or ("ANALYST" in folders)
                 directories.append(os.path.join(folders, jsons))
     return sorted(directories)
@@ -89,24 +88,28 @@ def index_files(files:[str]) -> None:
             priority= priority_terms(file)
             anchor = anchorwords(file)
             for k, v in tokens.items():
-                score= tf_idf(v[0], int(doc_freq[k]))     # score using tf.idf
+                if k in doc_freq.keys():
+                    score= tf_idf(v[0], int(doc_freq[k]))# score using tf.idf
+                else:
+                    score= tf_idf(v[0], 1) # So it at least has some score     
                 if k in priority:
                     score += priority[k]
                 if k in anchor:
                     score += anchor[k]
-                
+                  
                 if k in indexer:
                     indexer[k].add(score, n, v[1])
                 else:
                     indexer[k]= Postings(score, n, v[1])
-            
+                
         if (total_websites % 100) == 0:
             print(n)
 
         if count > 700:     # Used for check similar websites
             traveler= dict()
+            gc.collect()
             
-        if count > 700:       # 700 for analyst, 15000 for developer
+        if count > 15000:       # 700 for analyst, 15000 for developer
             write_indexer_file(indexer, ids, f"output_indexer{num}.txt")
             num += 1
             count= 0
@@ -146,7 +149,7 @@ def tf_idf (tf: int, doc_freq: int) -> float:
     '''gives term freq weighting * inverse doc freq weighting, 
     should only work for queries 2-terms and longer'''
 
-    idf = 55392/doc_freq
+    idf = 44942/doc_freq
     new_score = 1+ log10(tf) * log10(idf)
     return new_score
 
@@ -285,11 +288,11 @@ def load_docfreq_file(filename: str) -> {str:int}:
 if __name__ == '__main__':
     start= time.time()
 
-    #json_files = file_paths()
-    #get_doc_freq(json_files)
+    json_files = file_paths()
+#     get_doc_freq(json_files)
 
     
-    json_files = file_paths()
+#     json_files = file_paths()
     index_files(json_files)
     end= time.time()
     print("Time", (end - start)/60, "minutes")
