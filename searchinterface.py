@@ -62,6 +62,7 @@ def interface(partial_index: {str:'Postings'}, ids: {int:str}, seeker: {'letter'
         start= time.time()
         ranked = search.searching(partial_index, ids, seeker, num_display, search_queries, files) #gets websites to display
         end= time.time()
+        timer= end- start
         print(end - start, "seconds")
 
         #Important: the list "ranked" is not used until the user presses the "->" or "<-" buttons
