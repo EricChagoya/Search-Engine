@@ -23,28 +23,13 @@ def file_paths() -> ['dir'] and ['files']:
     """Cycle through content in .json files.  Read the contents; get the tokens
     and call the indexer"""
     directories = []
-    names= []
     root_directory = os.path.dirname(__file__)
     for folders, _, files in os.walk(root_directory, topdown= False):
         for jsons in files:
             if ("ANALYST" in folders):
 #             if ("DEV" in folders): #or ("ANALYST" in folders)
                 directories.append(os.path.join(folders, jsons))
-                names.append(str(jsons))
-    
-    count= 0
-    for k in directories:
-        print(k)
-        if count > 5:
-            break
-        count += 1
-
-    for k in names:
-        print(k)
-        if count > 10:
-            break
-        count += 1
-    return directories, names
+    return sorted(directories)
 
 
 def get_doc_freq(files:[str]) -> None:
@@ -52,26 +37,34 @@ def get_doc_freq(files:[str]) -> None:
     dumps that information into a textfile"""
     traveler = dict()
     t = dict()
-    n = 0
+    count = 0
+    total_websites= 0
+    unique_websites= 0
     for file in files:
         tokens, url= reader(file)
+        total_websites += 1
         if duplicate.check_duplicates(traveler, url, tokens) == False:
-            if n % 100 == 0:
-                print(n)
-            n += 1
+            unique_websites += 1
             traveler[url] = tokens
             for k in tokens.keys():
                 if k in t:
                     t[k] += 1
                 else:
                     t[k] = 1
-        if n > 15000:             # 700 for analyst, 15000 for developer
+            
+        if (total_websites % 100) == 0:
+            print(total_websites)
+
+        if count > 700:
             traveler= dict()
-    print("Number of Unique Websites", n)
+            count= 0
+        count += 1
     write_docfreq_file(t)
+    print("Total Websites:", total_websites)
+    print("Unique Websites:", unique_websites)
 
 
-def index_files(files:[str], names:['file']) -> None:
+def index_files(files:[str]) -> None:
     """It indexes after a certain number of websites iterated and then
     dumps that information into a textfile"""
     indexer= dict()
@@ -81,16 +74,21 @@ def index_files(files:[str], names:['file']) -> None:
     num= 0
     doc_freq = load_docfreq_file("doc_frequencies.txt")
 
+    total_websites= 0
+    unique_websites= 0
+
+
     for n, file in enumerate(files):
         tokens, url= reader(file)
         ids[n]= url
+        total_websites+= 1
         if duplicate.check_duplicates(traveler, url, tokens) == False:
+            unique_websites += 1
             traveler[url] = tokens
+            
             priority= priority_terms(file)
             anchor = anchorwords(file)
             for k, v in tokens.items():
-#                 if k == "fabflix" or "fabfix":
-#                     print("Caught k:",k)
                 score= tf_idf(v[0], int(doc_freq[k]))     # score using tf.idf
                 if k in priority:
                     score += priority[k]
@@ -101,19 +99,26 @@ def index_files(files:[str], names:['file']) -> None:
                     indexer[k].add(score, n, v[1])
                 else:
                     indexer[k]= Postings(score, n, v[1])
-        if (n % 100) == 0:
-            print(n)
             
-        if count > 5:       # 700 for analyst, 15000 for developer
+        if (total_websites % 100) == 0:
+            print(n)
+
+        if count > 700:     # Used for check similar websites
+            traveler= dict()
+            
+        if count > 700:       # 700 for analyst, 15000 for developer
             write_indexer_file(indexer, ids, f"output_indexer{num}.txt")
             num += 1
             count= 0
             indexer= dict()
-            traveler= dict()
             print("Saving File", num)
         count+= 1
     write_indexer_file(indexer, ids, f"output_indexer{num}.txt")
     write_ids_file(ids)
+    print(n)
+    print("G", total_websites)
+    print("H", unique_websites)
+    
 
 
 def reader(file:str) -> {'token':['count', ['position'] ] } and 'url':
@@ -141,9 +146,9 @@ def tf_idf (tf: int, doc_freq: int) -> float:
     '''gives term freq weighting * inverse doc freq weighting, 
     should only work for queries 2-terms and longer'''
 
-    idf = 12055/doc_freq
+    idf = 55392/doc_freq
     new_score = 1+ log10(tf) * log10(idf)
-    return new_score  
+    return new_score
 
 
 def anchorwords(json_file):
@@ -227,9 +232,9 @@ def tokenizer(token:str) -> str:
     lem_token = lemmatizer.lemmatize(lower_token) 
     
     if lem_token.endswith('e'):
-        itemized_token = re.split('[^a-zA-Z0-9]', lem_token.rstrip()) 
+        itemized_token = re.split('\W', lem_token.rstrip()) 
     else:
-        itemized_token = re.split('[^a-zA-Z0-9]', stemmed_token.rstrip()) #https://stackoverflow.com/questions/24517722/how-to-stop-nltk-stemmer-from-removing-the-trailing-e
+        itemized_token = re.split('\W', stemmed_token.rstrip()) #https://stackoverflow.com/questions/24517722/how-to-stop-nltk-stemmer-from-removing-the-trailing-e
     mod_token = ''
     for i in itemized_token:
         mod_token += i
@@ -280,11 +285,11 @@ def load_docfreq_file(filename: str) -> {str:int}:
 if __name__ == '__main__':
     start= time.time()
 
-#     json_files, _ = file_paths()
-#     get_doc_freq(json_files)
+    #json_files = file_paths()
+    #get_doc_freq(json_files)
 
     
-    json_files, names = file_paths()
-#     index_files(json_files, names)
+    json_files = file_paths()
+    index_files(json_files)
     end= time.time()
     print("Time", (end - start)/60, "minutes")
