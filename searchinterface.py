@@ -4,8 +4,7 @@ from LL import Postings
 import search
 import Indexer
 
-def valid_query(user_input, result_widget)->list or bool:
-    #Function arguments are: tkinter.Entry() object and tkinter.Label() object
+def valid_query(user_input: tkinter.Entry, result_widget: tkinter.Label)->list or bool:
     '''Checks to see whether the query is:
     1) English/Roman characters
     2) Has no extra whitespace
@@ -31,7 +30,7 @@ def valid_query(user_input, result_widget)->list or bool:
         
     return False
 
-def interface(partial_index, ids, seeker, num_display):
+def interface(partial_index: dict, ids: {int:str}, seeker: {'letter':int}, num_display: int) -> None  :
     '''Main function for the VISUALS of our search engine; most (or all) of the visuals in our
     program is defined by this function'''
     global results_index
@@ -55,11 +54,6 @@ def interface(partial_index, ids, seeker, num_display):
     result4 = tkinter.Label(root, text = "", font = ("Courier New", 12))
     result5 = tkinter.Label(root, text = "", font = ("Courier New", 12))
 
-
-
-
-
-
     #Define display_results() function•••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••
 
     def display_results(search_queries: list)->None:
@@ -69,18 +63,10 @@ def interface(partial_index, ids, seeker, num_display):
 
         ranked = search.searching(partial_index, ids, seeker, num_display, search_queries) #gets websites to display
 
-
-
-
-
         #Important: the list "ranked" is not used until the user presses the "->" or "<-" buttons
 
-
-
-
-
         #Define give_urls() function•••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••
-        def give_urls(website_list, r1, r2, r3, r4, r5):
+        def give_urls(website_list: list, r1: tkinter.Label, r2: tkinter.Label, r3: tkinter.Label, r4: tkinter.Label, r5: tkinter.Label)-> None:
             '''Displays (with TKinter) five search results at a time'''
             global results_index
 
@@ -143,7 +129,6 @@ def interface(partial_index, ids, seeker, num_display):
             return
         #End give_urls() function••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••
 
-
         #These functions help display five results at a time•••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••
         def order_FIRST()->None:
             '''Display first results without clicking the "next_button" or "back_button"'''
@@ -180,14 +165,7 @@ def interface(partial_index, ids, seeker, num_display):
         drawingspace.create_window(470, 800, window=back_button)
 
         return
-
-
     #End display_results() function•••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••
-
-
-
-
-
 
     def process_query()->None:
         '''Validates a user's queries before attempting to activate the protocol to display the results'''
