@@ -1,14 +1,12 @@
+import time
 import tkinter
-import ranker
-from LL import Postings
+
 import search
 import Indexer
+from LL import Postings
 
-def valid_query(user_input: tkinter.Entry, result_widget: tkinter.Label)->list or bool:
-    '''Checks to see whether the query is:
-    1) English/Roman characters
-    2) Has no extra whitespace
-    3) Not an empty input'''
+def valid_query(user_input: tkinter.Entry, result_widget: tkinter.Label)-> [str] or bool:
+    '''Checks to see whether the query has English characters and not empty'''
     words = [term for term in user_input.get().split() if len(term) > 0]
 
     if len(words) < 1:
@@ -22,15 +20,15 @@ def valid_query(user_input: tkinter.Entry, result_widget: tkinter.Label)->list o
         except:
             print("There\'s an invalid query; skipping...")
 
-    if len(valid_words) > len(words) // 2:
+    if 0 < len(valid_words):
         proper_query = " "
         proper_query = proper_query.join(valid_words)
         result_widget.config(text = "Searching for " + proper_query)
         return valid_words
-        
     return False
 
-def interface(partial_index: dict, ids: {int:str}, seeker: {'letter':int}, num_display: int) -> None  :
+def interface(partial_index: {str:'Postings'}, ids: {int:str}, seeker: {'letter':int},
+              num_display: int, files:['file_object']) -> None  :
     '''Main function for the VISUALS of our search engine; most (or all) of the visuals in our
     program is defined by this function'''
     global results_index
@@ -61,7 +59,10 @@ def interface(partial_index: dict, ids: {int:str}, seeker: {'letter':int}, num_d
 
         drawingspace.create_window(520, 300, window = result_widget)
 
-        ranked = search.searching(partial_index, ids, seeker, num_display, search_queries) #gets websites to display
+        start= time.time()
+        ranked = search.searching(partial_index, ids, seeker, num_display, search_queries, files) #gets websites to display
+        end= time.time()
+        print(end - start, "seconds")
 
         #Important: the list "ranked" is not used until the user presses the "->" or "<-" buttons
 
@@ -134,7 +135,6 @@ def interface(partial_index: dict, ids: {int:str}, seeker: {'letter':int}, num_d
             '''Display first results without clicking the "next_button" or "back_button"'''
             global results_index
             results_index = 0
-
             give_urls(ranked, result1, result2, result3, result4, result5)
 
 
@@ -142,17 +142,16 @@ def interface(partial_index: dict, ids: {int:str}, seeker: {'letter':int}, num_d
             '''By clicking the next_button, the user will see the next 5 results'''
             global results_index
             results_index += 5
-
             while results_index > len(ranked) - 1 or results_index % 5 != 0:
                     results_index -= 1
-
             give_urls(ranked, result1, result2, result3, result4, result5)
+
 
         def order_PREV()->None:
             '''By clicking the back_button, the user will see the previous 5 results'''
             global results_index
             results_index -= 5
-            print(results_index)
+            #print(results_index)
             if results_index < 0:
                 results_index = 0
             give_urls(ranked, result1, result2, result3, result4, result5)
@@ -186,35 +185,46 @@ def interface(partial_index: dict, ids: {int:str}, seeker: {'letter':int}, num_d
 
     search_button = tkinter.Button(text = "Search", command = process_query, font = ("Comic Sans MS", 16, "bold"))
     drawingspace.create_window(510, 240, window=search_button)
-
     root.mainloop()
+
+
 
 if __name__ == '__main__':
     partial_index= dict()
     ids= search.get_ids()
     seeker= search.seek_dict()
     num_display= 5
-    #to
-    post1 = Postings(1, 1, [41])
+    
+    post1 = Postings(1, 1, [41])    #to
     post1.add(1, 1, [45])
     post1.add(1, 2, [32])
 
-    #be
-    post2 = Postings(1, 1, [42])
+    post2 = Postings(1, 1, [42])    #be
     post2.add(1, 1, [46])
     post2.add(1, 2, [33])
 
-    #or
-    post3 = Postings(1, 1, [43])
+    post3 = Postings(1, 1, [43])    #or
 
-    #not
-    post4 = Postings(1, 1, [44])
+    post4 = Postings(1, 1, [44])    #not
 
-    index_output = {
-        "to": post1,
-        "be": post2,
-        "or": post3,
-        "not": post4,}
-    a = interface(partial_index, ids, seeker, num_display)
-    print(a)
+    index_output = {"to": post1, "be": post2, "or": post3, "not": post4}
+
+
+    with open("0-9_output_indexer.txt", "r", encoding = 'utf8') as f0, \
+         open("A-F_output_indexer.txt", "r", encoding = 'utf8') as f1, \
+         open("G-M_output_indexer.txt", "r", encoding = 'utf8') as f2, \
+         open("N-S_output_indexer.txt", "r", encoding = 'utf8') as f3, \
+         open("T-Z_output_indexer.txt", "r", encoding = 'utf8') as f4:
+        files= [f0, f1, f2, f3, f4]
+        interface(partial_index, ids, seeker, num_display, files)
     print("end")
+
+
+
+
+
+
+
+
+
+
