@@ -188,15 +188,15 @@ def seek() -> None:
             for line in f:
                 letter= line[0]
                 if letter == lst[0]:
-                    if letter == 'c':
-                        char_number+= 1
+                    #if letter == 'c':
+                    #    char_number+= 1
                     t0.append(char_number)
                     w.write(letter + "\t" + str(char_number) + "\n")
                     lst.pop(0)
 
                 char_number += len(line) + 1
             t.append(t0)
-        """
+        
         print(t)
         for f, tt in zip(files, t):
             for num in tt:
@@ -204,17 +204,17 @@ def seek() -> None:
                 line= f.readline()
                 print(line[:40])
             print()
-        """
+        
 
 
 
 
 if __name__ == '__main__':
     start= time.time()
-    merge_index()  #Merging
+    #merge_index()  #Merging
 
     # Can't do this until you fix the merge list
-    #seek()     # Find position of the letters in different files
+    seek()     # Find position of the letters in different files
     end= time.time()
     print("Time", (end - start)/60, "minutes")
 
