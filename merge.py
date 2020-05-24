@@ -11,12 +11,20 @@ def merge_index() -> None:
          open("output_indexer1.txt", "r", encoding = 'utf8') as f1, \
          open("output_indexer2.txt", "r", encoding = 'utf8') as f2, \
          open("output_indexer3.txt", "r", encoding = 'utf8') as f3, \
+         open("output_indexer4.txt", "r", encoding = 'utf8') as f4, \
+         open("output_indexer5.txt", "r", encoding = 'utf8') as f5, \
+         open("output_indexer6.txt", "r", encoding = 'utf8') as f6, \
+         open("output_indexer7.txt", "r", encoding = 'utf8') as f7, \
+         open("output_indexer8.txt", "r", encoding = 'utf8') as f8, \
+         open("output_indexer9.txt", "r", encoding = 'utf8') as f9, \
+         open("output_indexer10.txt", "r", encoding = 'utf8') as f10, \
+         open("output_indexer11.txt", "r", encoding = 'utf8') as f11, \
          open("0-9_output_indexer.txt", "w", encoding = 'utf8') as w0, \
          open("A-F_output_indexer.txt", "w", encoding = 'utf8') as w1, \
          open("G-M_output_indexer.txt", "w", encoding = 'utf8') as w2, \
          open("N-S_output_indexer.txt", "w", encoding = 'utf8') as w3, \
          open("T-Z_output_indexer.txt", "w", encoding = 'utf8') as w4:
-        files= [f0, f1, f2, 3]
+        files= [f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11]
         write= [w0, w1, w2, w3, w4]
         all_buffers= [add_buffer(f) for f in files]
         merging(all_buffers, write)
