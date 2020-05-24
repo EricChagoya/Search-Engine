@@ -109,7 +109,7 @@ def index_files(files:[str]) -> None:
             traveler= dict()
             gc.collect()
             
-        if count > 15000:       # 700 for analyst, 15000 for developer
+        if count > 5000:       # 700 for analyst, 15000 for developer
             write_indexer_file(indexer, ids, f"output_indexer{num}.txt")
             num += 1
             count= 0
