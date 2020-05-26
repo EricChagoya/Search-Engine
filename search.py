@@ -1,7 +1,11 @@
+# What do we do if the user searches only for special characters or empty spaces
+# Do we show them nothing or keep asking them until they ask for a valid response?
 
-import merge
+import time
 from LL import Postings
+import merge
 from math import log10
+
 
 
 def searching(partial_index: {'token': 'Postings'}, ids:{'ids':'urls'}, seeker:{str:int},
@@ -13,7 +17,7 @@ def searching(partial_index: {'token': 'Postings'}, ids:{'ids':'urls'}, seeker:{
     if len(partial_index) > 500:
         partial_index= dict()
 
-
+    return ranked_order
 
 def search(query_terms:[str], partial_index:{'token':'Posting'}, seeker: {str:int},
            num_display:int, files:['file_object']) -> {'id':'score'} and {'token':'Posting'}:
@@ -21,50 +25,53 @@ def search(query_terms:[str], partial_index:{'token':'Posting'}, seeker: {str:in
     max_look= num_display
     if 2 > len(query_terms):
         max_look *= len(query_terms) * 4
-    
+        
     update_partial_index(query_terms, partial_index, seeker, files)
-    """
-    for k, v in partial_index.items():
-        print('Term:', k)
-        v.print_nodes()
-        print()
-    """
+
     
     temp_ranked= dict() # Do rankings here
+    # Don't change partial index
+    # ranked= {id of the website:score}
     
     for k, v in partial_index.items():
+
         count = 0
         while v.get_node() != None:
             if count < 1000:
-                tfidf = tf_idf(partial_index, k)
-                temp_ranked[v.get_id()] = tfidf
+                temp_ranked[v.get_id()] = v.get_score()
                 ++count
                 v.next()
             else:
                 break
+
     
     sorted_ranked = sorted(temp_ranked.items(), key= lambda x:x[1], reverse=True)
     
     ranked = dict()
     for item in sorted_ranked:
         ranked[item[0]] = item[1]
-    #print("Ranked: ", ranked)
+#     print("Ranked: ", ranked)
 
-    for ids in ranked.keys():
-        position_score= 1 # ranker.query_match(partial_index, query_terms, id, max_look)
-        ranked[ids] += position_score
+#     for ids in ranked.keys():
+#         position_score= 1 # ranker.query_match(partial_index, query_terms, id, max_look)
+#         ranked[ids] += position_score
     
     return ranked, partial_index
 
-def tf_idf (index_file: dict, word: str) -> float:
+def tf_idf (index_file: dict, doc_freq: int, word: str) -> float:
     '''gives term freq weighting * inverse doc freq weighting, 
     should only work for queries 2-terms and longer'''
-    doc_freq = 0
-     
-    if word in index_file:
-        doc_freq = index_file[word].length()
-    tf = index_file[word].get_score()
+#     doc_freq = 0
+# #     print("index_file keys: ", index_file.keys())
+#      
+#     if word in index_file:
+#         doc_freq = index_file[word].length()
+#         print("doc_freq: ", doc_freq)
+#     print("index_file[word] score: ", index_file[word].get_score())
+    tf = index_file[word].get_score() 
+#     print("tf: ", tf)
     idf = 55392/doc_freq
+#     print("idf: ", idf)
     new_score = 1+ log10(tf) * log10(idf)
     return new_score
 
@@ -113,7 +120,6 @@ def find_term(f:['file_object'], sorted_terms: [str], partial_index:{'token':'Po
                 f.seek(int(seeker[sorted_terms[count][0]]))
     return count
 
-
 def sorted_lookup(terms:[str]) -> ['str']:
     """It sees which file to look at for each query term. It returns
     a list of how often that word appears in the file"""
@@ -133,7 +139,6 @@ def sorted_lookup(terms:[str]) -> ['str']:
     return files
 
 
-
 def get_ids() -> {int:str}:
     """It gets the ids and the websites they are associated with"""
     file= "ids_identifier.txt"
@@ -147,8 +152,9 @@ def get_ids() -> {int:str}:
 def decode_ids(ranked:{int:int}, ids:{int:str}, max_urls:int) -> [str]:
     """Returns a list of urls sorted by the highest ranking first"""
     ranked_order= []
-    count = 0
-    for k, v in sorted(ranked.items(), key= (lambda x:x[1]) ):
+    count = 0    # Maybe enumerate
+    for k, _ in sorted(ranked.items(), key= (lambda x:x[1]), reverse = True ):
+#         print(k,v)
         ranked_order.append(ids[str(k)])
         count+= 1
         if count >= max_urls:
@@ -168,6 +174,11 @@ def seek_dict() -> {'letter':int}:
         
     
 
+
+
+
+
+# searching('t')
 
 
 
