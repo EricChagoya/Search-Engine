@@ -12,6 +12,8 @@ def searching(partial_index: {'token': 'Postings'}, ids:{'ids':'urls'}, seeker:{
               num_display:int, query_terms:[str], files:['file_object']) -> [str]:
     """It gets a list of the best ranked websites"""
     ranked, partial_index= search(query_terms, partial_index, seeker, num_display, files)
+#     print("Length of partial index", len(partial_index))
+#     print("Length of ranked:", len(ranked))
     ranked_order= decode_ids(ranked, ids, num_display)
 
     if len(partial_index) > 500:
@@ -32,6 +34,7 @@ def search(query_terms:[str], partial_index:{'token':'Posting'}, seeker: {str:in
     temp_ranked= dict() # Do rankings here
     # Don't change partial index
     # ranked= {id of the website:score}
+#     print("Partial index:",partial_index)
     
     for k, v in partial_index.items():
 
@@ -39,7 +42,8 @@ def search(query_terms:[str], partial_index:{'token':'Posting'}, seeker: {str:in
         while v.get_node() != None:
             if count < 1000:
                 temp_ranked[v.get_id()] = v.get_score()
-                ++count
+#                 print("temp_ranked",temp_ranked)
+                count += 1 
                 v.next()
             else:
                 break
@@ -57,24 +61,6 @@ def search(query_terms:[str], partial_index:{'token':'Posting'}, seeker: {str:in
 #         ranked[ids] += position_score
     
     return ranked, partial_index
-
-def tf_idf (index_file: dict, doc_freq: int, word: str) -> float:
-    '''gives term freq weighting * inverse doc freq weighting, 
-    should only work for queries 2-terms and longer'''
-#     doc_freq = 0
-# #     print("index_file keys: ", index_file.keys())
-#      
-#     if word in index_file:
-#         doc_freq = index_file[word].length()
-#         print("doc_freq: ", doc_freq)
-#     print("index_file[word] score: ", index_file[word].get_score())
-    tf = index_file[word].get_score() 
-#     print("tf: ", tf)
-    idf = 55392/doc_freq
-#     print("idf: ", idf)
-    new_score = 1+ log10(tf) * log10(idf)
-    return new_score
-
 
 
 def update_partial_index(query_terms:[str], partial_index:{"token":"Posting"},
@@ -159,6 +145,7 @@ def decode_ids(ranked:{int:int}, ids:{int:str}, max_urls:int) -> [str]:
         count+= 1
         if count >= max_urls:
             return ranked_order
+    return ranked_order
 
 
 def seek_dict() -> {'letter':int}:
