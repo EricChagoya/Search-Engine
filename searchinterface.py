@@ -52,7 +52,7 @@ def interface(partial_index: {str:'Postings'}, ids: {int:str}, seeker: {'letter'
     result4 = tkinter.Label(root, text = "", font = ("Courier New", 12))
     result5 = tkinter.Label(root, text = "", font = ("Courier New", 12))
 
-    #Define display_results() function•••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••
+    #Define display_results() function
 
     def display_results(search_queries: list)->None:
         '''This is a process that will display search results once the user has entered a query'''
@@ -61,14 +61,16 @@ def interface(partial_index: {str:'Postings'}, ids: {int:str}, seeker: {'letter'
 
         start= time.time()
         ranked = search.searching(partial_index, ids, seeker, num_display, search_queries, files) #gets websites to display
+#         print("Number 1# Result:",ranked[0])
         end= time.time()
         timer = (end - start) * 1000
         timer = "{:.0f}".format(timer)
+        print(timer)
 
 
         #Important: the list "ranked" is not used until the user presses the "->" or "<-" buttons
 
-        #Define give_urls() function•••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••
+        #Define give_urls() function
         def give_urls(website_list: list, r1: tkinter.Label, r2: tkinter.Label, r3: tkinter.Label, r4: tkinter.Label, r5: tkinter.Label)-> None:
             '''Displays (with TKinter) five search results at a time'''
             global results_index
@@ -130,9 +132,9 @@ def interface(partial_index: {str:'Postings'}, ids: {int:str}, seeker: {'letter'
                 return
 
             return
-        #End give_urls() function••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••
+        #End give_urls() function
 
-        #These functions help display five results at a time•••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••
+        #These functions help display five results at a time
         def order_FIRST()->None:
             '''Display first results without clicking the "next_button" or "back_button"'''
             global results_index
@@ -157,7 +159,7 @@ def interface(partial_index: {str:'Postings'}, ids: {int:str}, seeker: {'letter'
             if results_index < 0:
                 results_index = 0
             give_urls(ranked, result1, result2, result3, result4, result5)
-        #End of functions that display five results at a time••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••
+        #End of functions that display five results at a time
 
         order_FIRST()
         next_button = tkinter.Button(text = "->", command = order_NEXT, font = ("Comic Sans MS", 16, "bold"))
@@ -169,7 +171,7 @@ def interface(partial_index: {str:'Postings'}, ids: {int:str}, seeker: {'letter'
         drawingspace.create_window(510, 850, window=timerlabel)
 
         return
-    #End display_results() function•••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••
+    #End display_results() function
 
     def process_query()->None:
         '''Validates a user's queries before attempting to activate the protocol to display the results'''
