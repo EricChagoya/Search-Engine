@@ -5,6 +5,7 @@ import time
 from LL import Postings
 import merge
 from math import log10
+from _functools import partial
 
 
 
@@ -28,8 +29,11 @@ def search(query_terms:[str], partial_index:{'token':'Posting'}, seeker: {str:in
     if 2 > len(query_terms):
         max_look *= len(query_terms) * 4
         
+#     print("before:",partial_index)
+    
     update_partial_index(query_terms, partial_index, seeker, files)
 
+#     print("after:", partial_index)
     
     temp_ranked= dict() # Do rankings here
     # Don't change partial index
@@ -41,13 +45,14 @@ def search(query_terms:[str], partial_index:{'token':'Posting'}, seeker: {str:in
         count = 0
         while v.get_node() != None:
             if count < 1000:
+#                 print(k,":",v.get_node())
                 temp_ranked[v.get_id()] = v.get_score()
 #                 print("temp_ranked",temp_ranked)
                 count += 1 
                 v.next()
             else:
                 break
-
+    print("temp ranked:",temp_ranked)
     
     sorted_ranked = sorted(temp_ranked.items(), key= lambda x:x[1], reverse=True)
     
@@ -94,7 +99,7 @@ def find_term(f:['file_object'], sorted_terms: [str], partial_index:{'token':'Po
     while n > 0:
         line= f.readline().split("\t")
         if line[0] == sorted_terms[count]:
-            partial_index[line[0]]= merge.add_posting(line)
+            partial_index[line[0]]= merge.new_posting(line)
             count += 1
             n -= 1
             if (len(sorted_terms) != count) and (sorted_terms[1][0] != line[0]):
