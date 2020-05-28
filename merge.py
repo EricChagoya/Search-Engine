@@ -54,10 +54,9 @@ def create_reading_buffer(total:['str']) -> [('token', 'Posting')]:
         buffer.append((line[0].lower(), post))
     return buffer
 
-
-def add_posting(line:[str]) -> "Postings":
+def new_posting(line:[str]) -> "Postings":
 #     line[2]= [i.strip() for i in line[2].split("->") if len(i) > 1]
-    print(line)
+#     print(line)
     itemized_line = []
 #     split_line = line.split("->")
     for n in range(2,len(line)):
@@ -68,6 +67,16 @@ def add_posting(line:[str]) -> "Postings":
     if len(itemized_line) > 1:
         for i in range(-2, -len(line[2]) - 1, -1):
             p= eval(itemized_line[i])
+            post.add(p[0], p[1], p[2])
+    return post
+
+def add_posting(line:[str]) -> "Postings":
+    line[2]= [i.strip() for i in line[2].split("->") if len(i) > 1]
+    last= eval(line[2][-1])
+    post= Postings(last[0], last[1], last[2])
+    if len(line[2]) > 1:
+        for i in range(-2, -len(line[2]) - 1, -1):
+            p= eval(line[2][i])
             post.add(p[0], p[1], p[2])
     return post
 
