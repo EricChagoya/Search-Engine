@@ -1,20 +1,51 @@
-1. computer science
-2. artificial intelligence
-3. information systems
-4. python programming
-5. masters in computer engineering
-6. search engine
-7. professor martins
-8. database structures
-9. binary search tree
-10. linked lists
-11. graphical user interface
-12. the university of california, irvine
-13. ICS Student Council
-14. informatics academic advising
-15. richard pattis
-16. analysis of algorithms
-17. UCI ICS faculty
-18. requirements engineering
-19. ICS scholarships
-20. UCI ICS undergraduate enrollment
+1. computer science: effective, but relatively poor efficiency; 
+		     fixed by setting limit of nodes/sites read from inverted index 
+		     and saved into partial index to 500
+
+2. artificial intelligence: effective and efficient
+
+3. information systems: relatively low effectiveness but efficient;
+			 created new_postings function that read/saved more than first node/site containing term 
+			
+
+4. python programming: moderate effectiveness and efficient
+
+5. masters in computer engineering: relatively low effectiveness and relatively efficient;
+				    created new_postings function that read/saved more than first node/site containing term 
+
+6. search engine: effective and efficient
+
+7. professor martins: relatively low effectiveness but efficient;
+		      created new_postings function that read/saved more than first node/site containing term
+
+8. database structures: moderately effective and efficient
+
+9. binary search tree: moderate effectiveness and efficient
+
+10. linked lists: relatively low effectiveness but efficient;
+		  created new_postings function that read/saved more than first node/site containing term
+
+11. graphical user interface: moderate effectiveness and efficient
+
+12. the university of california, irvine: relatively low effectiveness but efficient;
+					 created new_postings function that read/saved more than first node/site containing term
+
+13. ICS Student Council: relatively low effectiveness but efficient;
+			 created new_postings function that read/saved more than first node/site containing term
+
+14. informatics academic advising: relatively low effectiveness but efficient;
+			 created new_postings function that read/saved more than first node/site containing term
+
+15. richard pattis: initially poor efficiency/effectiveness(would give indexerror); 
+		    fixed by adjusting bounds of for-loop when adding Postings
+
+16. analysis of algorithms: relatively low effectiveness but efficient;
+			 created new_postings function that read/saved more than first node/site containing term
+
+17. UCI ICS faculty: efficient and effective
+
+18. requirements engineering: relatively low effectiveness but efficient
+
+19. ICS scholarships: effective and efficient
+
+20. UCI ICS undergraduate enrollment: effective and efficient
