@@ -60,16 +60,6 @@ def search(query_terms:[str], partial_index:{'token':'Posting'}, seeker: {str:in
             else:
                 break
     
-#     sorted_ranked = sorted(temp_ranked.items(), key= lambda x:x[1], reverse=True)
-    
-#     ranked = dict()
-#     for item in sorted_ranked:
-#         ranked[item[0]] = item[1]
-# #     print("Ranked: ", ranked)
-
-# #     for ids in ranked.keys():
-# #         position_score= 1 # ranker.query_match(partial_index, query_terms, id, max_look)
-# #         ranked[ids] += position_score
     
     return temp_ranked, partial_index
 
