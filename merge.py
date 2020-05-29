@@ -55,10 +55,7 @@ def create_reading_buffer(total:['str']) -> [('token', 'Posting')]:
     return buffer
 
 def new_posting(line:[str]) -> "Postings":
-#     line[2]= [i.strip() for i in line[2].split("->") if len(i) > 1]
-#     print(line)
     itemized_line = []
-#     split_line = line.split("->")
     for n in range(2,len(line)):
         node = line[n].strip(" -> ")
         itemized_line.append(node)
