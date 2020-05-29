@@ -6,6 +6,7 @@ from LL import Postings
 import merge
 from math import log10
 from _functools import partial
+import ranker
 
 
 
@@ -13,9 +14,14 @@ def searching(partial_index: {'token': 'Postings'}, ids:{'ids':'urls'}, seeker:{
               num_display:int, query_terms:[str], files:['file_object']) -> [str]:
     """It gets a list of the best ranked websites"""
     ranked, partial_index= search(query_terms, partial_index, seeker, num_display, files)
+    
+    new_ranked = {}
+    for docID in ranked:
+        new_ranked[docID] = ranker.query_match(partial_index, query_terms, docID)
+
 #     print("Length of partial index", len(partial_index))
 #     print("Length of ranked:", len(ranked))
-    ranked_order= decode_ids(ranked, ids, num_display)
+    ranked_order= decode_ids(new_ranked, ids, num_display) #ranked = {ID number: document score}
 
     if len(partial_index) > 500:
         partial_index= dict()
@@ -41,20 +47,18 @@ def search(query_terms:[str], partial_index:{'token':'Posting'}, seeker: {str:in
 #     print("Partial index:",partial_index)
     
     for k, v in partial_index.items():
-
         count = 0
         v.reset()
         while v.get_node() != None:
-            if count < 1000:
-#                 print(k,":",v.get_node())
-                temp_ranked[v.get_id()] = v.get_score()
-#                 print("temp_ranked",temp_ranked)
+            if count < max_look:
+                if v.get_id() in temp_ranked:
+                    temp_ranked[v.get_id()] += v.get_score()
+                else:
+                    temp_ranked[v.get_id()] = v.get_score()
                 count += 1 
                 v.next()
             else:
                 break
-
-    print("temp ranked:",temp_ranked)
     
     sorted_ranked = sorted(temp_ranked.items(), key= lambda x:x[1], reverse=True)
     

@@ -60,16 +60,24 @@ def interface(partial_index: {str:'Postings'}, ids: {int:str}, seeker: {'letter'
         drawingspace.create_window(520, 300, window = result_widget)
 
         start= time.time()
-        ranked = search.searching(partial_index, ids, seeker, num_display, search_queries, files) #gets websites to display
-        print("Length of results: ", len(ranked))
+        websitelist = search.searching(partial_index, ids, seeker, num_display, search_queries, files) #gets websites to display
 
-        for a in range(0, 5):
-            print(ranked[a])
-#         print("Number 1# Result:",ranked[0])
+        ranked = []
+
+        for website in websitelist:
+            if "#" in website:
+                parts = website.split("#")
+                if parts[0] not in ranked:
+                    ranked.append(parts[0])
+            else:
+                if website not in ranked:
+                    ranked.append(website)
+
         end= time.time()
         timer = (end - start) * 1000
         timer = "{:.0f}".format(timer)
-        print(timer)
+
+        print(ranked[0], ranked[1], ranked[2], ranked[3], ranked[4])
 
 
         #Important: the list "ranked" is not used until the user presses the "->" or "<-" buttons
@@ -203,7 +211,7 @@ if __name__ == '__main__':
     partial_index= dict()
     ids= search.get_ids()
     seeker= search.seek_dict()
-    num_display= 10000
+    num_display= 100
     
     post1 = Postings(1, 1, [41])    #to
     post1.add(1, 1, [45])
@@ -227,7 +235,7 @@ if __name__ == '__main__':
          open("T-Z_output_indexer.txt", "r", encoding = 'utf8') as f4:
         files= [f0, f1, f2, f3, f4]
         interface(partial_index, ids, seeker, num_display, files)
-    print("end")
+    #print("end")
 
 
 

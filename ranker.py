@@ -4,41 +4,6 @@ from pydoc import doc
 from _operator import index
 from cmath import log
 from math import log10
-#1)Isolate each query term from the user\'s input.
-#2)Check if each query term is in the tokenizer (dictionary)
-#3)Read their postings/nodes.
-#4)Compare with terms' positions.
-#5)If positions differ by 1, this is important.
-#7)Return integer related to weighting.
-
-#iterate through index until I found ID:
-#for i in postings:
-#    i.get_ID == ID
-
-#phrase = [1, 2, 3, 4, 5] # = words
-#phrase = [1, 2, 3, 5, 4] #not the right order
-
-#previous = 4
-#current = 5
-
-#weight = 0 #the higher the nu
-#for word in phrase:
-#    weight += 5
-
-#return weight
-#expected = only one number
-
-#Scenario:
-#phrase = 'to #&*^@%$HFJEWY @#&*$(#  @#HDF WYEF# F HWEUIOYF$'
-#{
-# to: (1, 1, [1])
-# }
-#Return 0 here because there is no match
-
-#check one document per call
-#use a while loop for iterations
-#Stop when you reach the matching ID.
-#Difference between positions should be strictly 1 (for now).
 
 #•••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••
 
@@ -50,13 +15,14 @@ def store_positions(index_file, word, ID):
 
 
         #begin loop----------------------------------------------------------
-        while postings.get_node() != None:
-
+        count = 0
+        while count < 5 or postings.get_node() != None:
             if postings.get_id() == ID: #Document ID must match before we can proceed
                 #word_positions += postings.get_position()
                 word_positions.extend(postings.get_position())
 
             postings.next()
+            count += 1
         #end loop----------------------------------------------------------
         postings.reset()
 
@@ -67,17 +33,17 @@ def store_positions(index_file, word, ID):
 
 #•••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••
 
-def query_match(index_file, phrase, ID):
+def query_match(index_file: dict, phrase: [str], ID: int) -> int:
     inspected_words = [] #this prevents over-weighing the same terms
     score = 0
 
-    queries = phrase.split(" ")
-    if len(queries) > 1:
+    #queries = phrase.split(" ")
+    if len(phrase) > 1:
         #begin word-by-word process----------------------------------------------------------
-        for a in range(1, len(queries)):
-            front_of_pair = queries[a] #word in the front
+        for a in range(1, len(phrase)):
+            front_of_pair = phrase[a] #word in the front
     #         print("front: " + front_of_pair)
-            back_of_pair = queries[a-1] #word preceding front_of_pair
+            back_of_pair = phrase[a-1] #word preceding front_of_pair
     #         print("back: " + back_of_pair)
     
             inspected_pair = (back_of_pair, front_of_pair) #I'll use this pair later
@@ -105,7 +71,7 @@ def query_match(index_file, phrase, ID):
             #end comparison for positions-----------------------------------------------------
     #         print(inspected_words)
         #end word-by-word process-------------------------------------------------------------
-    elif len(queries) == 1 and (queries[0] in index_file):
+    elif len(phrase) == 1 and (phrase[0] in index_file):
         score += 5
     return score
 
@@ -158,7 +124,6 @@ if __name__ == '__main__':
         "be": post2,
         "or": post3,
         "not": post4,}
-
     
     score = query_match(index_output, "to be or not to be", 1)
     print("Sample phrase: to be or not to be")
