@@ -77,6 +77,7 @@ def interface(partial_index: {str:'Postings'}, ids: {int:str}, seeker: {'letter'
         timer = (end - start) * 1000
         timer = "{:.0f}".format(timer)
 
+
         print(ranked[0], ranked[1], ranked[2], ranked[3], ranked[4])
 
 
@@ -211,7 +212,7 @@ if __name__ == '__main__':
     partial_index= dict()
     ids= search.get_ids()
     seeker= search.seek_dict()
-    num_display= 100
+    num_display= 50
     
     post1 = Postings(1, 1, [41])    #to
     post1.add(1, 1, [45])

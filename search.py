@@ -33,7 +33,7 @@ def search(query_terms:[str], partial_index:{'token':'Posting'}, seeker: {str:in
     """It finds a large number of relevant websites and scores them"""
     max_look= num_display
     if 2 > len(query_terms):
-        max_look *= len(query_terms) * 4
+        max_look *= 100
         
 #     print("before:",partial_index)
     

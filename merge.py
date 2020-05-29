@@ -59,7 +59,7 @@ def new_posting(line:[str]) -> "Postings":
     for n in range(2,len(line)):
         node = line[n].strip(" -> ")
         itemized_line.append(node)
-        if n == 100:
+        if n == 20:
             break
     last= eval(itemized_line[0]) 
     post= Postings(last[0], last[1], last[2])
