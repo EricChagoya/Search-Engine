@@ -1,6 +1,6 @@
 1. computer science: effective, but relatively poor efficiency; 
 		     fixed by setting limit of nodes/sites read from inverted index 
-		     and saved into partial index to 500
+		     and saved into partial index to 500(index elimination- top 500 Postings according to score)
 
 2. artificial intelligence: effective and efficient
 
@@ -44,8 +44,16 @@
 
 17. UCI ICS faculty: efficient and effective
 
-18. requirements engineering: relatively low effectiveness but efficient
+18. requirements engineering: relatively low effectiveness but efficient;
+			      created new_postings function that read/saved more than first node/site containing term
 
 19. ICS scholarships: effective and efficient
 
 20. UCI ICS undergraduate enrollment: effective and efficient
+
+
+Heuristics used to improve search:
+- sorted Postings related to each token from highest to lowest score
+- index elimination (limited partial index to 500 highest scoring Postings per token)
+- use positions
+- weighted scores according to bolding/heading
