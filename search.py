@@ -43,6 +43,7 @@ def search(query_terms:[str], partial_index:{'token':'Posting'}, seeker: {str:in
     for k, v in partial_index.items():
 
         count = 0
+        v.reset()
         while v.get_node() != None:
             if count < 1000:
 #                 print(k,":",v.get_node())
@@ -52,6 +53,7 @@ def search(query_terms:[str], partial_index:{'token':'Posting'}, seeker: {str:in
                 v.next()
             else:
                 break
+
     print("temp ranked:",temp_ranked)
     
     sorted_ranked = sorted(temp_ranked.items(), key= lambda x:x[1], reverse=True)

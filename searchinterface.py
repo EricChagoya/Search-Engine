@@ -61,6 +61,10 @@ def interface(partial_index: {str:'Postings'}, ids: {int:str}, seeker: {'letter'
 
         start= time.time()
         ranked = search.searching(partial_index, ids, seeker, num_display, search_queries, files) #gets websites to display
+        print("Length of results: ", len(ranked))
+
+        for a in range(0, 5):
+            print(ranked[a])
 #         print("Number 1# Result:",ranked[0])
         end= time.time()
         timer = (end - start) * 1000
@@ -199,7 +203,7 @@ if __name__ == '__main__':
     partial_index= dict()
     ids= search.get_ids()
     seeker= search.seek_dict()
-    num_display= 5
+    num_display= 10000
     
     post1 = Postings(1, 1, [41])    #to
     post1.add(1, 1, [45])
