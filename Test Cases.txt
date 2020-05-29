@@ -51,9 +51,13 @@
 
 20. UCI ICS undergraduate enrollment: effective and efficient
 
+21. machine learning: not very effective but efficient;
+		      used query_match function written in ranker.py to improve effectiveness of results, 
+		      then changed index elimination of partial index from 500 to 100 in order to improve efficiency
 
 Heuristics used to improve search:
 - sorted Postings related to each token from highest to lowest score
-- index elimination (limited partial index to 500 highest scoring Postings per token)
+- index elimination (limited partial index to 500, then 100, highest scoring Postings per token)
 - use positions
 - weighted scores according to bolding/heading
+- implemented query_match function to compare positions/see if words are next to each other
