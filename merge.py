@@ -37,7 +37,7 @@ def add_buffer(open_file: 'file_object') -> [('token', 'Posting')]:
     for line in open_file:
         total.append(line)
         count+= 1
-        if count >= 500:    # Size of the buffer
+        if count >= 250:    # Size of the buffer
             yield create_reading_buffer(total)
             total= []
             count= 0
@@ -59,7 +59,7 @@ def new_posting(line:[str]) -> "Postings":
     for n in range(2,len(line)):
         node = line[n].strip(" -> ")
         itemized_line.append(node)
-        if n == 20:
+        if n == 100:
             break
     last= eval(itemized_line[0]) 
     post= Postings(last[0], last[1], last[2])
@@ -189,9 +189,11 @@ def seek() -> None:
          open("N-S_output_indexer.txt", "r", encoding = 'utf8') as f3, \
          open("T-Z_output_indexer.txt", "r", encoding = 'utf8') as f4, \
          open("find_letter.txt", "w", encoding = 'utf8') as w:
-        lst= ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-              'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
-              'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
+        lst= ['0', '04','1', '14', '2', '24', '3','34', '4', '44', '5', '54', 
+              '6', '64', '7', '74', '8', '84', '9', '94',
+              'a', 'am', 'b', 'bm', 'c', 'cm', 'd', 'dm', 'e', 'em', 'f', 'fm',
+               'g', 'gm', 'h', 'i', 'im', 'j', 'jm','k', 'km', 'l', 'mm',
+                'm', 'n', 'nm', 'o', 'om', 'p','pm', 'q', 'r', 's', 't', 'tm',
               'u', 'v', 'w', 'x', 'y', 'z', '{']
         files= [f0, f1, f2, f3, f4]
         t= []
@@ -201,7 +203,8 @@ def seek() -> None:
             char_number= 0
             for line in f:
                 letter= line[0]
-                if letter == lst[0]:
+                pair = line[:2]
+                if (letter == lst[0]) or (pair == lst[0]):
                     #if letter == 'c':
                     #    char_number+= 1
                     t0.append(char_number)
