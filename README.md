@@ -26,4 +26,6 @@ ranker.py
 
 searchinterface.py
 
+Link to output files: https://drive.google.com/open?id=18VBiG8BNT3uWEuGyv2pshH-PG3vg86-J
+
 
