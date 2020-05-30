@@ -64,11 +64,4 @@ def query_match(index_file: dict, phrase: [str], ID: int) -> int:
         score += 5
     return score
     
-    if word in index_file:
-        doc_freq = index_file[word].length()
-    tf = index_file[word].get_score() * weighted_tf
-    print("tf: ", tf)
-    idf = 55392/doc_freq
-    print("idf: ", idf)
-    new_score = 1+ log10(tf) * log10(idf)
-    return new_score
+ 
