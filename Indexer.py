@@ -150,7 +150,7 @@ def tf_idf (tf: int, doc_freq: int) -> float:
     should only work for queries 2-terms and longer'''
 
     idf = 44942/doc_freq
-    new_score = 1+ log10(tf) * log10(idf)
+    new_score = (1+ log10(tf)) * log10(idf)
     return new_score
 
 
